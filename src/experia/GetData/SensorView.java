@@ -12,13 +12,13 @@ public class SensorView extends View {
     private int[] linearacceleraration= {-1, -1, -1};	//加速度
     private int[] orientation = {-1, -1, -1};	//傾き
     private int[] magnetic= {-1, -1, -1};	//磁界
-//    private int[] gyroscope= {-1, -1, -1};	//ジャイロ
-//    private int[] light= {-1};		//ライト
-//    private int[] pressure= {-1};	//圧力
-//    private int[] proximity= {-1};	//近接
+    private int[] gyroscope= {-1, -1, -1};	//ジャイロ
+    private int[] light= {-1};		//ライト
+    private int[] pressure= {-1};	//圧力
+    private int[] proximity= {-1};	//近接
     private int[] gravity= {-1, -1, -1};	//重力
-//    private int[] rotation= {-1, -1, -1};	//回転ベクトル
-//    private int[] temperature= {-1};	//温度
+    private int[] rotation= {-1, -1, -1};	//回転ベクトル
+    private int[] temperature= {-1};	//温度
     private int[] orientationValues = {-1, -1, -1};	//傾き
 
     Paint paint = null;
@@ -57,7 +57,7 @@ public class SensorView extends View {
         this.magnetic=magnetic;
     }
     //ジャイロの指定
-/*    public void setGyroscope(int[] gyroscope) {
+    public void setGyroscope(int[] gyroscope) {
         this.gyroscope=gyroscope;
     }
     //照度の指定
@@ -71,19 +71,19 @@ public class SensorView extends View {
     //近接の指定
     public void setProximity(int[] proximity) {
         this.proximity=proximity;
-    }*/
+    }
     //重力の指定
     public void setGravity(int[] gravity) {
         this.gravity=gravity;
     }
     //回転ベクトルの指定
-/*    public void setRotation(int[] rotation) {
+    public void setRotation(int[] rotation) {
         this.rotation=rotation;
     }
     //温度の指定
     public void setTmperature(int[] temperature) {
       this.temperature=temperature;
-    }*/
+    }
     //傾きVの指定
     public void setOrientationValues(int[] orientationValues) {
       this.orientationValues=orientationValues;

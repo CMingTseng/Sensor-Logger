@@ -27,17 +27,17 @@ public class GetDataActivity extends Activity implements SensorEventListener {
     private Sensor        accelerometer;//加速度せンサー(acc)
     private Sensor        orientation; //回転せンサー(ori)
     private Sensor        magnetic;		//磁界センサー(mag)
-//    private Sensor        gyroscope;	//ジャイロセンサー(gyr)
-//    private Sensor        light;		//照度センサー(lig)
-//    private Sensor        pressure;		//圧力センサー(pre)
-//    private Sensor        proximity;	//近接センサー(pro)
+    private Sensor        gyroscope;	//ジャイロセンサー(gyr)
+    private Sensor        light;		//照度センサー(lig)
+    private Sensor        pressure;		//圧力センサー(pre)
+    private Sensor        proximity;	//近接センサー(pro)
     private Sensor        gravity;		//重力センサー(gra)
     private Sensor        linearacceleraration;//加速度せンサー(lac)
-//    private Sensor        rotation;		//回転ベクトルセンサー(rot)
-//  private Sensor        humidity;		//相対湿度センサー(hum)
-//    private Sensor        temperature;		//温度センサー(tem)
-//  private Sensor		  acceleration;    //
-//    private Sensor        orientationV; //回転せンサー(ori)
+    private Sensor        rotation;		//回転ベクトルセンサー(rot)
+    private Sensor        humidity;		//相対湿度センサー(hum)
+    private Sensor        temperature;		//温度センサー(tem)
+    private Sensor		  acceleration;    //
+    private Sensor        orientationV; //回転せンサー(ori)
 
     private boolean mIsMagSensor = false;
     private boolean mIsAccSensor = false;
@@ -86,25 +86,25 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         if (list.size()>0) orientation=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
         if (list.size()>0) magnetic=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE);
-//        if (list.size()>0) gyroscope=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_LIGHT);
-//        if (list.size()>0) light=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
-//        if (list.size()>0) pressure=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_PROXIMITY);
-//        if (list.size()>0) proximity=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE);
+        if (list.size()>0) gyroscope=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_LIGHT);
+        if (list.size()>0) light=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
+        if (list.size()>0) pressure=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_PROXIMITY);
+        if (list.size()>0) proximity=list.get(0);
 /* for 2.3.3 or up */
         list=sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
         if (list.size()>0) gravity=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
         if (list.size()>0) linearacceleraration=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_ROTATION_VECTOR);
-//        if (list.size()>0) rotation=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_RERATIVE_HUMIDITY);
-//        if (list.size()>0) humidity=list.get(0);
-//        list=sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE);
-//        if (list.size()>0) temperature=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_ROTATION_VECTOR);
+        /*if (list.size()>0) rotation=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_RERATIVE_HUMIDITY);*/
+        if (list.size()>0) humidity=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE);
+        if (list.size()>0) temperature=list.get(0);
 
 
         try{
@@ -142,7 +142,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
             sensorManager.registerListener(this,
       	        magnetic,SensorManager.SENSOR_DELAY_FASTEST);
         }
-/*        if (gyroscope!=null) {
+        if (gyroscope!=null) {
             sensorManager.registerListener(this,
         	    gyroscope,SensorManager.SENSOR_DELAY_FASTEST);
         }
@@ -157,25 +157,25 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         if (proximity!=null) {
             sensorManager.registerListener(this,
         	    proximity,SensorManager.SENSOR_DELAY_FASTEST);
-       }*/
+       }
         if (gravity!=null) {
             sensorManager.registerListener(this,
         	    gravity,SensorManager.SENSOR_DELAY_FASTEST);
        }
-/*        if (rotation!=null) {
+        if (rotation!=null) {
             sensorManager.registerListener(this,
         	    rotation,SensorManager.SENSOR_DELAY_FASTEST);
         }
         if (temperature!=null) {
             sensorManager.registerListener(this,
         	    temperature,SensorManager.SENSOR_DELAY_FASTEST);
-        }*/
+        }
         if (linearacceleraration!=null) {
             sensorManager.registerListener(this,
             		linearacceleraration,SensorManager.SENSOR_DELAY_FASTEST);
         }
 
-/*        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+        List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         //センサマネージャヘリスナーを登録
         for(Sensor sensor : sensors){
         	if( sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
@@ -186,7 +186,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         		sensorManager.registerListener(this, sensor,SensorManager.SENSOR_DELAY_NORMAL);
         		mIsAccSensor = true;
         	}
-        }*/
+        }
 
     }
     
@@ -286,7 +286,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	mIsMagSensor = true;
         }
       //ジャイロの取得
-/*        if (event.sensor==gyroscope) {
+        if (event.sensor==gyroscope) {
         	sensorView.setGyroscope(w);
         	try{
         		bw.write("gyr" + "," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
@@ -295,9 +295,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error5 " + e);
         	}
-        }*/
+        }
       //照度の取得
-/*        if (event.sensor==light) {
+        if (event.sensor==light) {
         	sensorView.setLight(w);
         	try{
         		bw.write("lig" + "," + dmemo + "," + w[0]);
@@ -306,9 +306,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error6 " + e);
         	}
-        }*/
+        }
       //圧力の取得
-/*        if (event.sensor==pressure) {
+        if (event.sensor==pressure) {
         	sensorView.setPressure(w);
         	try{
         		bw.write("pre" + "," + dmemo + "," + w[0]);
@@ -317,9 +317,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error7 " + e);
         	}
-        }*/
+        }
       //近接の取得
-/*        if (event.sensor==proximity) {
+        if (event.sensor==proximity) {
         	sensorView.setProximity(w);
         	try{
         		bw.write("pro" + "," + dmemo + "," + w[0]);
@@ -328,7 +328,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error8 " + e);
         	}
-        }*/
+        }
       //重力の取得
         if (event.sensor==gravity) {
         	sensorView.setGravity(w);
@@ -341,7 +341,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	}
         }
       //方位の取得
-/*        if (event.sensor==rotation) {
+       if (event.sensor==rotation) {
         	sensorView.setRotation(w);
         	try{
         		bw.write("rot," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
@@ -350,9 +350,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error10 " + e);
         	}
-        }*/
+        }
       //温度の取得
-/*        if (event.sensor==temperature) {
+        if (event.sensor==temperature) {
         	sensorView.setTmperature(w);
         	try{
         		bw.write("tem," + dmemo + "," + w[0]);
@@ -361,7 +361,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         	} catch (Exception e) {
         		sensorView.setLine("error11 " + e);
         	}
-        }*/
+        }
 
         //傾きVの取得
     	if(mIsMagSensor || mIsAccSensor){
