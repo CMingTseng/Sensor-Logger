@@ -103,26 +103,24 @@ public class SensorView extends View {
         canvas.drawText("X軸磁界:"   +magnetic[0], 0,hi*8,paint);
         canvas.drawText("Y軸磁界:"   +magnetic[1], 0,hi*9,paint);
         canvas.drawText("Z軸磁界:"   +magnetic[2], 0,hi*10,paint);
-/*        canvas.drawText("X軸ジャイロ:"   +gyroscope[0], 0,hi*11,paint);
+        canvas.drawText("X軸ジャイロ:"   +gyroscope[0], 0,hi*11,paint);
         canvas.drawText("Y軸ジャイロ:"   +gyroscope[1], 0,hi*12,paint);
         canvas.drawText("Z軸ジャイロ:"   +gyroscope[2], 0,hi*13,paint);
         canvas.drawText("照度:"   +light[0], 0,hi*14,paint);
         canvas.drawText("圧力:"   +pressure[0], 0,hi*15,paint);
-        canvas.drawText("近接:"   +proximity[0], 0,hi*16,paint);*/
-        canvas.drawText("X軸重力:"   +gravity[0], 0,hi*11,paint);
-        canvas.drawText("Y軸重力:"   +gravity[1], 0,hi*12,paint);
-        canvas.drawText("Z軸重力:"   +gravity[2], 0,hi*13,paint);
-/*        canvas.drawText("X軸回転ベクトル:"   +rotation[0], 0,hi*20,paint);
+        canvas.drawText("近接:"   +proximity[0], 0,hi*16,paint);
+        canvas.drawText("X軸重力:"   +gravity[0], 0,hi*17,paint);
+        canvas.drawText("Y軸重力:"   +gravity[1], 0,hi*18,paint);
+        canvas.drawText("Z軸重力:"   +gravity[2], 0,hi*19,paint);
         canvas.drawText("Y軸回転ベクトル:"   +rotation[1], 0,hi*21,paint);
         canvas.drawText("Z軸回転ベクトル:"   +rotation[2], 0,hi*22,paint);
         canvas.drawText("温度:"   +temperature[0], 0,hi*23,paint);
-        */
-        canvas.drawText("(線形)X軸加速度:"+linearacceleraration[0],0,hi*14,paint);
-        canvas.drawText("(線形)Y軸加速度:"+linearacceleraration[1],0,hi*15,paint);
-        canvas.drawText("(線形)Z軸加速度:"+linearacceleraration[2],0,hi*16,paint);
-        canvas.drawText("azmuth:"    +orientationValues[0], 0,hi*17,paint);
-        canvas.drawText("pitch:"   +orientationValues[1], 0,hi*18,paint);
-        canvas.drawText("roll:"   +orientationValues[2], 0,hi*19,paint);
+        canvas.drawText("(線形)X軸加速度:"+linearacceleraration[0],0,hi*24,paint);
+        canvas.drawText("(線形)Y軸加速度:"+linearacceleraration[1],0,hi*25,paint);
+        canvas.drawText("(線形)Z軸加速度:"+linearacceleraration[2],0,hi*26,paint);
+        canvas.drawText("azmuth:"    +orientationValues[0], 0,hi*27,paint);
+        canvas.drawText("pitch:"   +orientationValues[1], 0,hi*28,paint);
+        canvas.drawText("roll:"   +orientationValues[2], 0,hi*29,paint);
 
     }
 }
