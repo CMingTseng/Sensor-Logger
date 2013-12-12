@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.AttributeSet;
 import android.view.View;
 
 //加速度センサーの利用
@@ -26,9 +27,9 @@ public class SensorView extends View {
     int hi = 28;//28 for xperia, 12 for IDE
 
     //コンストラクタ
-    public SensorView(Context context) {
-        super(context);
-        setBackgroundColor(Color.BLACK);
+
+    public SensorView(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
         paint=new Paint();
         paint.setAntiAlias(true);
@@ -36,8 +37,8 @@ public class SensorView extends View {
         paint.setColor(Color.WHITE);
     }
 
-    public void setLine(String line_){
-    	line = line_;
+    public void setLine(String line) {
+       this.line = line;
     }
 
     //加速度の指定

@@ -66,8 +66,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        sensorView=new SensorView(this);
-        setContentView(sensorView);
+
+        setContentView(R.layout.main);
+        sensorView = (SensorView) findViewById(R.id.sensor_view);
 
         //パワー制御
         powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
@@ -75,8 +76,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         wakeLock.acquire();
 
         //センサーマネージャの取得
-        sensorManager=(SensorManager)getSystemService(
-            Context.SENSOR_SERVICE);
+        sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 
         //センサーの取得
         List<Sensor> list;
@@ -94,7 +94,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         if (list.size()>0) pressure=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_PROXIMITY);
         if (list.size()>0) proximity=list.get(0);
-/* for 2.3.3 or up */
+        /* for 2.3.3 or up */
         list=sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
         if (list.size()>0) gravity=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -207,7 +207,7 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         }
         
         sensorManager.unregisterListener(this);
-        wakeLock.release();
+        if (wakeLock.isHeld()) wakeLock.release();
 
         //アプリの停止
         super.onStop();
