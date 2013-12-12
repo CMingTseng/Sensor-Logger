@@ -2,32 +2,33 @@ package experia.GetData;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.view.Window;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.PowerManager;
+import android.view.View;
+import android.view.Window;
+import android.widget.RadioGroup;
+import android.widget.ToggleButton;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.BufferedWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import android.os.PowerManager;
+import java.util.List;
 
 //加速度センサーの利用
-public class GetDataActivity extends Activity implements SensorEventListener {
+public class GetDataActivity extends Activity implements SensorEventListener, View.OnClickListener {
     private SensorManager sensorManager;//センサーマネージャ
     private SensorView sensorView;   //センサービュー
     private GraphView graphView;
+    private ToggleButton toggleButton;
+    RadioGroup radioGroup;
 
     //Sensor
     private Sensor accelerometer;//加速度せンサー(acc)
@@ -65,6 +66,8 @@ public class GetDataActivity extends Activity implements SensorEventListener {
     SimpleDateFormat sdf2 = new SimpleDateFormat("HHmmss.SSS");
     String dmemo, line;
 
+    boolean shouldShowGraph = false;
+
     //初期化
     @Override
     public void onCreate(Bundle icicle) {
@@ -74,6 +77,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.main);
         sensorView = (SensorView) findViewById(R.id.sensor_view);
         graphView = (GraphView) findViewById(R.id.graph_view);
+        toggleButton = (ToggleButton) findViewById(R.id.graph_control_btn);
+        toggleButton.setOnClickListener(this);
+        radioGroup = (RadioGroup) findViewById(R.id.graph_radio_group);
 
         //パワー制御
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -253,7 +259,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         if (event.sensor == accelerometer) {
             //ensorView.setAcceleration(event.values);
             sensorView.setAcceleration(axis);
-            graphView.makePath(axis);
+            if (radioGroup.getCheckedRadioButtonId() == R.id.acceleration_btn) {
+                graphView.makePath(axis);
+            }
             try {
                 bw.write("acc," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
                 bw.newLine();
@@ -269,6 +277,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         if (event.sensor == linearacceleraration) {
             //ensorView.setAcceleration(event.values);
             sensorView.setLinearacceleraration(axis);
+            if (radioGroup.getCheckedRadioButtonId() == R.id.linear_acceleration_btn) {
+                graphView.makePath(axis);
+            }
             try {
                 bw.write("lac," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
                 bw.newLine();
@@ -307,7 +318,9 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         //ジャイロの取得
         if (event.sensor == gyroscope) {
             sensorView.setGyroscope(axis);
-//            graphView.makePath(axis);
+            if (radioGroup.getCheckedRadioButtonId() == R.id.gyroscope_btn) {
+                graphView.makePath(axis);
+            }
             graphView.invalidate();
             try {
                 bw.write("gyr" + "," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
@@ -426,6 +439,16 @@ public class GetDataActivity extends Activity implements SensorEventListener {
 
     //精度変更イベントの処理
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.graph_control_btn:
+                shouldShowGraph = toggleButton.isChecked();
+                graphView.setVisibility(shouldShowGraph ? View.VISIBLE : View.INVISIBLE);
+                return;
+        }
     }
 
 /*   int radianToDegree(float rad){

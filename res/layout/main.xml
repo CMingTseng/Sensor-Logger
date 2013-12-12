@@ -10,12 +10,48 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+
+    <RadioGroup
+        android:id="@+id/graph_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:gravity="center_vertical">
+
+        <ToggleButton
+            android:id="@+id/graph_control_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false" />
+
+        <RadioButton
+            android:id="@+id/acceleration_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="加速度" />
+
+        <RadioButton
+            android:id="@+id/gyroscope_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ジャイロ" />
+
+        <RadioButton
+            android:id="@+id/linear_acceleration_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="線形加速度" />
+    </RadioGroup>
+
     <experia.GetData.GraphView
         android:id="@+id/graph_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@android:color/white"/>
+        android:visibility="invisible"
+        android:background="@android:color/white" />
 
 
 </LinearLayout>
