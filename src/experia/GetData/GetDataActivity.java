@@ -8,9 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.view.Window;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Environment;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -23,21 +26,22 @@ import android.os.PowerManager;
 //加速度センサーの利用
 public class GetDataActivity extends Activity implements SensorEventListener {
     private SensorManager sensorManager;//センサーマネージャ
-    private SensorView    sensorView;   //センサービュー
-    private Sensor        accelerometer;//加速度せンサー(acc)
-    private Sensor        orientation; //回転せンサー(ori)
-    private Sensor        magnetic;		//磁界センサー(mag)
-    private Sensor        gyroscope;	//ジャイロセンサー(gyr)
-    private Sensor        light;		//照度センサー(lig)
-    private Sensor        pressure;		//圧力センサー(pre)
-    private Sensor        proximity;	//近接センサー(pro)
-    private Sensor        gravity;		//重力センサー(gra)
-    private Sensor        linearacceleraration;//加速度せンサー(lac)
-    private Sensor        rotation;		//回転ベクトルセンサー(rot)
-    private Sensor        humidity;		//相対湿度センサー(hum)
-    private Sensor        temperature;		//温度センサー(tem)
-    private Sensor		  acceleration;    //
-    private Sensor        orientationV; //回転せンサー(ori)
+    private SensorView sensorView;   //センサービュー
+    private GraphView graphView;
+
+    //Sensor
+    private Sensor accelerometer;//加速度せンサー(acc)
+    //    private Sensor        orientation; //回転せンサー(ori)
+    private Sensor magnetic;        //磁界センサー(mag)
+    private Sensor gyroscope;    //ジャイロセンサー(gyr)
+    //    private Sensor        light;		//照度センサー(lig)
+//    private Sensor        pressure;		//圧力センサー(pre)
+//    private Sensor        proximity;	//近接センサー(pro)
+    private Sensor gravity;        //重力センサー(gra)
+    private Sensor linearacceleraration;//加速度せンサー(lac)
+//    private Sensor        rotation;		//回転ベクトルセンサー(rot)
+//    private Sensor        humidity;		//相対湿度センサー(hum)
+//    private Sensor        temperature;		//温度センサー(tem)
 
     private boolean mIsMagSensor = false;
     private boolean mIsAccSensor = false;
@@ -69,57 +73,69 @@ public class GetDataActivity extends Activity implements SensorEventListener {
 
         setContentView(R.layout.main);
         sensorView = (SensorView) findViewById(R.id.sensor_view);
+        graphView = (GraphView) findViewById(R.id.graph_view);
 
         //パワー制御
-        powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "SensorsActivity");
         wakeLock.acquire();
 
         //センサーマネージャの取得
-        sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         //センサーの取得
         List<Sensor> list;
-        list=sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-        if (list.size()>0) accelerometer=list.get(0);
+        list = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+        if (list.size() > 0) accelerometer = list.get(0);
+
+        /*
         list=sensorManager.getSensorList(Sensor.TYPE_ORIENTATION);
         if (list.size()>0) orientation=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
-        if (list.size()>0) magnetic=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE);
-        if (list.size()>0) gyroscope=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_LIGHT);
+        */
+
+        list = sensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+        if (list.size() > 0) magnetic = list.get(0);
+        list = sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE);
+        if (list.size() > 0) gyroscope = list.get(0);
+
+        /*
+        list = sensorManager.getSensorList(Sensor.TYPE_LIGHT);
         if (list.size()>0) light=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_PRESSURE);
         if (list.size()>0) pressure=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_PROXIMITY);
         if (list.size()>0) proximity=list.get(0);
+        */
+
         /* for 2.3.3 or up */
-        list=sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
-        if (list.size()>0) gravity=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
-        if (list.size()>0) linearacceleraration=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_ROTATION_VECTOR);
-        /*if (list.size()>0) rotation=list.get(0);
-        list=sensorManager.getSensorList(Sensor.TYPE_RERATIVE_HUMIDITY);*/
+        list = sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+        if (list.size() > 0) gravity = list.get(0);
+        list = sensorManager.getSensorList(Sensor.TYPE_LINEAR_ACCELERATION);
+        if (list.size() > 0) linearacceleraration = list.get(0);
+
+        /*
+        list = sensorManager.getSensorList(Sensor.TYPE_ROTATION_VECTOR);
+        if (list.size()>0) rotation=list.get(0);
+        list=sensorManager.getSensorList(Sensor.TYPE_RERATIVE_HUMIDITY);
         if (list.size()>0) humidity=list.get(0);
         list=sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE);
         if (list.size()>0) temperature=list.get(0);
+        */
 
 
-        try{
-        	dmemo = sdf1.format(new Date(System.currentTimeMillis()));
-        	File dstFile = new File( Environment.getExternalStorageDirectory().getPath()
+        try {
+            dmemo = sdf1.format(new Date(System.currentTimeMillis()));
+            File dstFile = new File(Environment.getExternalStorageDirectory().getPath()
                     + "/data/" + "LOG" + dmemo + ".txt");
-        	dstFile.getParentFile().mkdir();
-        	sensorView.setLine(dstFile.getName());//from getPath()
+            dstFile.getParentFile().mkdir();
+            sensorView.setLine(dstFile.getName());//from getPath()
 
-        	FileOutputStream fos = new FileOutputStream(dstFile, true);
-        	OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-        	bw = new BufferedWriter(osw);
-        	//sensorView.setLine(dmemo);
+            FileOutputStream fos = new FileOutputStream(dstFile, true);
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+            bw = new BufferedWriter(osw);
+            //sensorView.setLine(dmemo);
         } catch (Exception e) {
-        	sensorView.setLine("error1 " + e);
+            sensorView.setLine("error1 " + e);
         }
     }
 
@@ -130,82 +146,82 @@ public class GetDataActivity extends Activity implements SensorEventListener {
         super.onResume();
 
         //センサーの処理の開始
-        if (accelerometer!=null) {
+        if (accelerometer != null) {
             sensorManager.registerListener(this,
-        	    accelerometer,SensorManager.SENSOR_DELAY_FASTEST);
+                    accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (orientation!=null) {
+//        if (orientation!=null) {
+//            sensorManager.registerListener(this,
+//      	        orientation,SensorManager.SENSOR_DELAY_FASTEST);
+//        }
+        if (magnetic != null) {
             sensorManager.registerListener(this,
-      	        orientation,SensorManager.SENSOR_DELAY_FASTEST);
+                    magnetic, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (magnetic!=null) {
+        if (gyroscope != null) {
             sensorManager.registerListener(this,
-      	        magnetic,SensorManager.SENSOR_DELAY_FASTEST);
+                    gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (gyroscope!=null) {
+//        if (light!=null) {
+//            sensorManager.registerListener(this,
+//        	    light,SensorManager.SENSOR_DELAY_FASTEST);
+//        }
+//        if (pressure!=null) {
+//            sensorManager.registerListener(this,
+//     	    pressure,SensorManager.SENSOR_DELAY_FASTEST);
+//        }
+//        if (proximity!=null) {
+//            sensorManager.registerListener(this,
+//        	    proximity,SensorManager.SENSOR_DELAY_FASTEST);
+//       }
+        if (gravity != null) {
             sensorManager.registerListener(this,
-        	    gyroscope,SensorManager.SENSOR_DELAY_FASTEST);
+                    gravity, SensorManager.SENSOR_DELAY_FASTEST);
         }
-        if (light!=null) {
+//        if (rotation!=null) {
+//            sensorManager.registerListener(this,
+//        	    rotation,SensorManager.SENSOR_DELAY_FASTEST);
+//        }
+//        if (temperature!=null) {
+//            sensorManager.registerListener(this,
+//        	    temperature,SensorManager.SENSOR_DELAY_FASTEST);
+//        }
+        if (linearacceleraration != null) {
             sensorManager.registerListener(this,
-        	    light,SensorManager.SENSOR_DELAY_FASTEST);
-        }
-        if (pressure!=null) {
-            sensorManager.registerListener(this,
-     	    pressure,SensorManager.SENSOR_DELAY_FASTEST);
-        }
-        if (proximity!=null) {
-            sensorManager.registerListener(this,
-        	    proximity,SensorManager.SENSOR_DELAY_FASTEST);
-       }
-        if (gravity!=null) {
-            sensorManager.registerListener(this,
-        	    gravity,SensorManager.SENSOR_DELAY_FASTEST);
-       }
-        if (rotation!=null) {
-            sensorManager.registerListener(this,
-        	    rotation,SensorManager.SENSOR_DELAY_FASTEST);
-        }
-        if (temperature!=null) {
-            sensorManager.registerListener(this,
-        	    temperature,SensorManager.SENSOR_DELAY_FASTEST);
-        }
-        if (linearacceleraration!=null) {
-            sensorManager.registerListener(this,
-            		linearacceleraration,SensorManager.SENSOR_DELAY_FASTEST);
+                    linearacceleraration, SensorManager.SENSOR_DELAY_FASTEST);
         }
 
         List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         //センサマネージャヘリスナーを登録
-        for(Sensor sensor : sensors){
-        	if( sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
-        		sensorManager.registerListener(this, sensor,SensorManager.SENSOR_DELAY_NORMAL);
-        		mIsMagSensor = true;
-        	}
-        	if( sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-        		sensorManager.registerListener(this, sensor,SensorManager.SENSOR_DELAY_NORMAL);
-        		mIsAccSensor = true;
-        	}
+        for (Sensor sensor : sensors) {
+            if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                mIsMagSensor = true;
+            }
+            if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                mIsAccSensor = true;
+            }
         }
 
     }
-    
+
     @Override
-    protected void onPause(){
-    	super.onPause();
-    	sensorManager.unregisterListener(this);
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
     }
 
     //アプリの停止
     @Override
     protected void onStop() {
         //センサーの処理の停止
-        
-        try{
-        	bw.close();
+
+        try {
+            bw.close();
         } catch (Exception e) {
         }
-        
+
         sensorManager.unregisterListener(this);
         if (wakeLock.isHeld()) wakeLock.release();
 
@@ -215,186 +231,197 @@ public class GetDataActivity extends Activity implements SensorEventListener {
 
     //センサーリスナーの処理
     public void onSensorChanged(SensorEvent event) {
-    	int w[] = new int[3];
-    	float f;
+        int axis[] = new int[3];
+        float f;
 
         //少数2桁切り捨て
-        for (int i=0;i<3;i++) {
-        	f = event.values[i];
-        	if(f > 210000){
-        		w[i] = 2100000000;
-        	} else if(f < -210000){
-        		w[i] = -2100000000;
-        	} else {
-        		w[i] = (int)(10000.0f * f);
-        	}
+        for (int i = 0; i < 3; i++) {
+            f = event.values[i];
+            if (f > 210000) {
+                axis[i] = 2100000000;
+            } else if (f < -210000) {
+                axis[i] = -2100000000;
+            } else {
+                axis[i] = (int) (10000.0f * f);
+            }
         }
 
 
         dmemo = sdf2.format(new Date(System.currentTimeMillis()));
 
         //加速度の取得
-        if (event.sensor==accelerometer) {
-        	//ensorView.setAcceleration(event.values);
-        	sensorView.setAcceleration(w);
-        	try{
-        		bw.write("acc," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error2 " + e);
-        	}
-        	accelerometerValues = event.values.clone();
-        	mIsAccSensor = true;
+        if (event.sensor == accelerometer) {
+            //ensorView.setAcceleration(event.values);
+            sensorView.setAcceleration(axis);
+            graphView.makePath(axis);
+            try {
+                bw.write("acc," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error2 " + e);
+            }
+            accelerometerValues = event.values.clone();
+            mIsAccSensor = true;
         }
 
         //線形加速度の取得
-        if (event.sensor==linearacceleraration) {
-        	//ensorView.setAcceleration(event.values);
-        	sensorView.setLinearacceleraration(w);
-        	try{
-        		bw.write("lac," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error13 " + e);
-        	}
+        if (event.sensor == linearacceleraration) {
+            //ensorView.setAcceleration(event.values);
+            sensorView.setLinearacceleraration(axis);
+            try {
+                bw.write("lac," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error13 " + e);
+            }
         }
+        /*
         //方向の取得
         if (event.sensor==orientation) {
             //sensorView.setOrientation(event.values);
-            sensorView.setOrientation(w);
+            sensorView.setOrientation(axis);
             try{
-        		bw.write("ori," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
+        		bw.write("ori," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
         		bw.newLine();
         		bw.flush();
         	} catch (Exception e) {
         		sensorView.setLine("error3 " + e);
         	}
         }
+        */
         //磁界の取得
-        if (event.sensor==magnetic) {
-        	sensorView.setMagnetic(w);
-        	try{
-        		bw.write("mag," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error4 " + e);
-        	}
-        	magneticValues = event.values.clone();
-        	mIsMagSensor = true;
+        if (event.sensor == magnetic) {
+            sensorView.setMagnetic(axis);
+            try {
+                bw.write("mag," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error4 " + e);
+            }
+            magneticValues = event.values.clone();
+            mIsMagSensor = true;
         }
-      //ジャイロの取得
-        if (event.sensor==gyroscope) {
-        	sensorView.setGyroscope(w);
-        	try{
-        		bw.write("gyr" + "," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error5 " + e);
-        	}
+        //ジャイロの取得
+        if (event.sensor == gyroscope) {
+            sensorView.setGyroscope(axis);
+//            graphView.makePath(axis);
+            graphView.invalidate();
+            try {
+                bw.write("gyr" + "," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error5 " + e);
+            }
         }
-      //照度の取得
-        if (event.sensor==light) {
-        	sensorView.setLight(w);
-        	try{
-        		bw.write("lig" + "," + dmemo + "," + w[0]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error6 " + e);
-        	}
+        /*
+        //照度の取得
+        if (event.sensor == light) {
+            sensorView.setLight(axis);
+            try {
+                bw.write("lig" + "," + dmemo + "," + axis[0]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error6 " + e);
+            }
         }
-      //圧力の取得
-        if (event.sensor==pressure) {
-        	sensorView.setPressure(w);
-        	try{
-        		bw.write("pre" + "," + dmemo + "," + w[0]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error7 " + e);
-        	}
+        //圧力の取得
+        if (event.sensor == pressure) {
+            sensorView.setPressure(axis);
+            try {
+                bw.write("pre" + "," + dmemo + "," + axis[0]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error7 " + e);
+            }
         }
-      //近接の取得
-        if (event.sensor==proximity) {
-        	sensorView.setProximity(w);
-        	try{
-        		bw.write("pro" + "," + dmemo + "," + w[0]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error8 " + e);
-        	}
+        //近接の取得
+        if (event.sensor == proximity) {
+            sensorView.setProximity(axis);
+            try {
+                bw.write("pro" + "," + dmemo + "," + axis[0]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error8 " + e);
+            }
         }
-      //重力の取得
-        if (event.sensor==gravity) {
-        	sensorView.setGravity(w);
-        	try{
-        		bw.write("gra," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error9 " + e);
-        	}
+        */
+        //重力の取得
+        if (event.sensor == gravity) {
+            sensorView.setGravity(axis);
+            try {
+                bw.write("gra," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error9 " + e);
+            }
         }
-      //方位の取得
-       if (event.sensor==rotation) {
-        	sensorView.setRotation(w);
-        	try{
-        		bw.write("rot," + dmemo + "," + w[0] + "," + w[1] + "," + w[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error10 " + e);
-        	}
+        /*
+        //方位の取得
+        if (event.sensor == rotation) {
+            sensorView.setRotation(axis);
+            try {
+                bw.write("rot," + dmemo + "," + axis[0] + "," + axis[1] + "," + axis[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error10 " + e);
+            }
         }
-      //温度の取得
-        if (event.sensor==temperature) {
-        	sensorView.setTmperature(w);
-        	try{
-        		bw.write("tem," + dmemo + "," + w[0]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error11 " + e);
-        	}
+        //温度の取得
+        if (event.sensor == temperature) {
+            sensorView.setTmperature(axis);
+            try {
+                bw.write("tem," + dmemo + "," + axis[0]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error11 " + e);
+            }
         }
+        */
 
+        /*
         //傾きVの取得
-    	if(mIsMagSensor || mIsAccSensor){
-    		mIsMagSensor = false;
-    		mIsAccSensor = false;
+        if (mIsMagSensor || mIsAccSensor) {
+            mIsMagSensor = false;
+            mIsAccSensor = false;
 
-    		SensorManager.getRotationMatrix(inR, I, accelerometerValues, magneticValues);
+            SensorManager.getRotationMatrix(inR, I, accelerometerValues, magneticValues);
 
-    		//Activityの表示が縦固定の場合
-    		SensorManager.remapCoordinateSystem(inR,SensorManager.AXIS_X, SensorManager.AXIS_Y, outR);
-    		SensorManager.getOrientation(outR,orientationValues);
-    		
-    		for(int i = 0; i < 3; i++){
-   // 			showValues[i] = (int)(radianToDegree(orientationValues[i]) * 10000.0);
-    			showValues[i] = (int)(orientationValues[i] * 10000.0);
-    		}
-    		sensorView.setOrientationValues(showValues);
-    		
-    		try{
-    			bw.write("apr," + dmemo + "," + showValues[0] + "," + showValues[1] + "," + showValues[2]);
-        		bw.newLine();
-        		bw.flush();
-        	} catch (Exception e) {
-        		sensorView.setLine("error12 " + e);
-        	}
-    	}
+            //Activityの表示が縦固定の場合
+            SensorManager.remapCoordinateSystem(inR, SensorManager.AXIS_X, SensorManager.AXIS_Y, outR);
+            SensorManager.getOrientation(outR, orientationValues);
+
+            for (int i = 0; i < 3; i++) {
+                // 			showValues[i] = (int)(radianToDegree(orientationValues[i]) * 10000.0);
+                showValues[i] = (int) (orientationValues[i] * 10000.0);
+            }
+            sensorView.setOrientationValues(showValues);
+
+            try {
+                bw.write("apr," + dmemo + "," + showValues[0] + "," + showValues[1] + "," + showValues[2]);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                sensorView.setLine("error12 " + e);
+            }
+        }
+        */
 
         sensorView.invalidate();
 
     }
-    
-    double radianToDegree(float rad){
-    	return Math.toDegrees(rad);
+
+    double radianToDegree(float rad) {
+        return Math.toDegrees(rad);
     }
 
     //精度変更イベントの処理
