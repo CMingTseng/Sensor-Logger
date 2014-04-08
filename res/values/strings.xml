@@ -3,5 +3,8 @@
 
     <string name="hello">Hello World, GetDataActivity!</string>
     <string name="app_name">GetData</string>
+    <string name="title_activity_quest">QuestActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
