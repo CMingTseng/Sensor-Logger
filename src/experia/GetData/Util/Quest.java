@@ -41,6 +41,12 @@ public class Quest {
             String log = String.format("Quaternion from Acc: %f, %f , %f With Magnetic: %f %f %f", acc[0], acc[1], acc[2], magnetic[0], magnetic[1], magnetic[2]);
             Log.d(TAG, log);
         }
+
+        //Normalied vector
+        //Tinh lamda
+        //Tinh matrix K
+        //Giai matrix
+
         Quaternion quaternion = new Quaternion(0, 0, 0, 0);
         return quaternion;
     }
