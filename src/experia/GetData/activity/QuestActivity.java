@@ -12,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import experia.GetData.R;
+import experia.GetData.Util.Config;
+import experia.GetData.Util.Quest;
 import experia.GetData.filter.LowPassFilter;
 
 
@@ -22,6 +24,7 @@ public class QuestActivity extends Activity implements SensorEventListener {
     // Outputs for the acceleration and LPFs
     private float[] acceleration = new float[3];
     private float[] lowPassFilterOutput = new float[3];
+    private float[] magnetic = new float[3];
     private LowPassFilter lowPassFilter;
     private SensorManager sensorManager;
 
@@ -46,7 +49,8 @@ public class QuestActivity extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -71,10 +75,22 @@ public class QuestActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
-        lowPassFilterOutput = lowPassFilter.addSamples(acceleration);
-        String log = String.format("Raw: %f %f %f Filtered: %f %f %f", acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]);
-        Log.d(TAG, log);
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
+            lowPassFilterOutput = lowPassFilter.addSamples(acceleration);
+            if (Config.DEBUG) {
+                String log = String.format("Raw: %f %f %f Filtered: %f %f %f", acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]);
+                Log.d(TAG, log);
+            }
+            Quest.getInstance().addAccelerometer(lowPassFilterOutput);
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
+            if (Config.DEBUG) {
+                String log = String.format("Magnetic field: %f %f %f", magnetic[0], magnetic[1], magnetic[2]);
+                Log.d(TAG, log);
+            }
+            Quest.getInstance().addMagnetic(magnetic);
+        }
     }
 
     @Override
