@@ -2,7 +2,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 18
-    buildToolsVersion "19.0.3"
+    buildToolsVersion '19.0.3'
 
     defaultConfig {
         minSdkVersion 15
@@ -19,4 +19,5 @@ android {
 
 dependencies {
     compile files('libs/Jama-1.0.3.jar')
+    compile 'org.la4j:la4j:0.4.9@jar'
 }
