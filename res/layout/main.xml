@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <experia.GetData.SensorView
+    <experia.GetData.view.SensorView
         android:id="@+id/sensor_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -45,7 +45,7 @@
             android:text="線形加速度" />
     </RadioGroup>
 
-    <experia.GetData.GraphView
+    <experia.GetData.view.GraphView
         android:id="@+id/graph_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

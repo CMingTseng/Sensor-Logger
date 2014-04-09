@@ -12,7 +12,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
         <activity
-            android:name="experia.GetData.GetDataActivity"
+            android:name=".activity.GetDataActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="experia.GetData.QuestActivity"
+            android:name=".activity.QuestActivity"
             android:label="@string/title_activity_quest">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
