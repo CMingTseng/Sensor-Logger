@@ -2,6 +2,8 @@ package experia.GetData.Util;
 
 import android.util.Log;
 
+import org.la4j.LinearAlgebra;
+import org.la4j.linear.LinearSystemSolver;
 import org.la4j.matrix.Matrix;
 import org.la4j.matrix.dense.Basic2DMatrix;
 import org.la4j.vector.Vector;
@@ -56,6 +58,9 @@ public class Quest {
             Log.d(TAG, log);
         }
 
+        if (acc[0] == 0 || acc[1] == 0 || acc[2] == 0) return null;
+        if (magnetic[0] == 0 || magnetic[1] == 0 || magnetic[2] == 0) return null;
+
         //Normalizes vector
         Vector accVector = new BasicVector(new double[]{acc[0], acc[1], acc[2]});
         Vector magneticVector = new BasicVector(new double[]{magnetic[0], magnetic[1], magnetic[2]});
@@ -74,9 +79,9 @@ public class Quest {
 
         //Tinh Cosin theta
         double cos_theta = scalarCrossProduct(v1, v2) * scalarCrossProduct(accVector, magneticVector);
-        //Tinh lamda
-        //lamda = sqrt(a1^2 + 2a1*a2cos_theta + a2^2)
-        double lamda = Math.sqrt(a1*a1 + 2*a1*a2*cos_theta + a2*a2);
+        //Tinh lamda_max
+        //lamda_max = sqrt(a1^2 + 2a1*a2cos_theta + a2^2)
+        double lamda_max = Math.sqrt(a1 * a1 + 2 * a1 * a2 * cos_theta + a2 * a2);
 
         //Tinh matrix K
 
@@ -84,7 +89,31 @@ public class Quest {
         Matrix B = accVector.toColumnMatrix().multiply(v1.toRowMatrix()).multiply(a1).add(magneticVector.toColumnMatrix().multiply(v2.toRowMatrix()).multiply(a2));
         Matrix S = B.add(B.transpose());
 
+        //Compute miu
+        double miu = accVector.innerProduct(v1) * a1 + magneticVector.innerProduct(v2) * a2;
+
+        //Identity matrix
+        Matrix S1 = S.subtract((new Basic2DMatrix().factory().createIdentityMatrix(3).multiply(miu)));
+
+        Vector Z = crossProduct(accVector, v1).multiply(a1).add(crossProduct(magneticVector, v2).multiply(a2));
+
+//        Matrix K = new Basic2DMatrix().factory().createBlockMatrix(S1, Z.toColumnMatrix(), Z.toRowMatrix(), new Basic2DMatrix().factory().createConstantMatrix(1, 1, miu));
+        Matrix K = S1.resize(4,4);
+        Vector Z1 = Z.resize(4);
+        Z1.set(3, miu);
+        K.setRow(3, Z1);
+        K.setColumn(3, Z1);
+
         //Giai matrix
+        //K * Quaternion = lamda_max * Quaternion
+        // (K - lamda_max * I ) * Quaternion = 0
+
+        //K- lamda_max * I
+        Matrix A = K.subtract(new Basic2DMatrix().factory().createIdentityMatrix(4).multiply(lamda_max));
+        Matrix Zero = new Basic2DMatrix().factory().createConstantMatrix(4, 1, 0.0);
+
+        LinearSystemSolver linearSystemSolver = A.withSolver(LinearAlgebra.SolverFactory.GAUSSIAN);
+        Vector q = linearSystemSolver.solve(new BasicVector().factory().createConstantVector(4, 0.0));
 
         Quaternion quaternion = new Quaternion(0, 0, 0, 0);
         return quaternion;
@@ -92,5 +121,12 @@ public class Quest {
 
     private double scalarCrossProduct(Vector vector1, Vector vector2) {
         return Math.sqrt(1 - Math.pow(vector1.innerProduct(vector2), 2));
+    }
+
+    private Vector crossProduct(Vector u, Vector v) {
+        double i = u.get(1) * v.get(2) - u.get(2) * v.get(1);
+        double j = u.get(0) * v.get(2) - u.get(2) * v.get(0);
+        double k = u.get(0) * v.get(1) - u.get(1) * v.get(0);
+        return new BasicVector(new double[]{i, j, k});
     }
 }
