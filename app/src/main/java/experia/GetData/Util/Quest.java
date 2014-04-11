@@ -62,14 +62,16 @@ public class Quest {
         if (magnetic[0] == 0 || magnetic[1] == 0 || magnetic[2] == 0) return null;
 
         //Normalizes vector
-        Vector accVector = new BasicVector(new double[]{acc[0], acc[1], acc[2]});
-        Vector magneticVector = new BasicVector(new double[]{magnetic[0], magnetic[1], magnetic[2]});
+        Vector accVector1 = new BasicVector(new double[]{acc[0], acc[1], acc[2]});
+        Vector magneticVector1 = new BasicVector(new double[]{magnetic[0], magnetic[1], magnetic[2]});
 
-        double norm1 = accVector.fold(Vectors.mkManhattanNormAccumulator());
-        accVector = accVector.divide(norm1);
+//        double norm1 = accVector1.fold(Vectors.mkManhattanNormAccumulator());
+//        Vector accVector = accVector1.divide(norm1);
+        Vector accVector = accVector1.normalize();
 
-        double norm2 = magneticVector.fold(Vectors.mkManhattanNormAccumulator());
-        magneticVector = magneticVector.divide(norm2);
+//        double norm2 = magneticVector1.fold(Vectors.mkManhattanNormAccumulator());
+//        Vector magneticVector = magneticVector1.divide(norm2);
+        Vector magneticVector = magneticVector1.normalize();
 
         if (Config.DEBUG) {
             String log1 = String.format("Norm acc: %f %f %f ", accVector.get(0), accVector.get(1), accVector.get(2));
@@ -98,7 +100,7 @@ public class Quest {
         Vector Z = crossProduct(accVector, v1).multiply(a1).add(crossProduct(magneticVector, v2).multiply(a2));
 
 //        Matrix K = new Basic2DMatrix().factory().createBlockMatrix(S1, Z.toColumnMatrix(), Z.toRowMatrix(), new Basic2DMatrix().factory().createConstantMatrix(1, 1, miu));
-        Matrix K = S1.resize(4,4);
+        Matrix K = S1.resize(4, 4);
         Vector Z1 = Z.resize(4);
         Z1.set(3, miu);
         K.setRow(3, Z1);
@@ -109,11 +111,28 @@ public class Quest {
         // (K - lamda_max * I ) * Quaternion = 0
 
         //K- lamda_max * I
-        Matrix A = K.subtract(new Basic2DMatrix().factory().createIdentityMatrix(4).multiply(lamda_max));
-        Matrix Zero = new Basic2DMatrix().factory().createConstantMatrix(4, 1, 0.0);
+//        Matrix A = K.subtract(new Basic2DMatrix().factory().createIdentityMatrix(4).multiply(lamda_max));
+//        Matrix Zero = new Basic2DMatrix().factory().createConstantMatrix(4, 1, 0.0);
 
-        LinearSystemSolver linearSystemSolver = A.withSolver(LinearAlgebra.SolverFactory.GAUSSIAN);
-        Vector q = linearSystemSolver.solve(new BasicVector().factory().createConstantVector(4, 0.0));
+//        LinearSystemSolver linearSystemSolver = A.withSolver(LinearAlgebra.SolverFactory.GAUSSIAN);
+//        Vector q = linearSystemSolver.solve(new BasicVector().factory().createConstantVector(4, 0.0));
+
+        //Find all eigen value and vector
+        Matrix[] matrixes = K.withDecompositor(LinearAlgebra.DecompositorFactory.EIGEN).decompose();
+
+//        Log.i(TAG, "lamda:" + lamda_max);
+//        Log.i(TAG, "matrix of vectors:\n" + matrixes[0].toString());
+//        Log.i(TAG, "matrix of values:\n" + matrixes[1].toString());
+
+        double max = matrixes[1].get(0,0);
+        int index = 0;
+        for (int i=1; i<4; i++) {
+            if (matrixes[1].get(i,i) > max) {
+                index = i;
+                max = matrixes[1].get(i, i);
+            }
+        }
+        Log.i(TAG, "Quaternion:" + matrixes[0].getColumn(index));
 
         Quaternion quaternion = new Quaternion(0, 0, 0, 0);
         return quaternion;
@@ -125,7 +144,7 @@ public class Quest {
 
     private Vector crossProduct(Vector u, Vector v) {
         double i = u.get(1) * v.get(2) - u.get(2) * v.get(1);
-        double j = u.get(0) * v.get(2) - u.get(2) * v.get(0);
+        double j = -u.get(0) * v.get(2) + u.get(2) * v.get(0);
         double k = u.get(0) * v.get(1) - u.get(1) * v.get(0);
         return new BasicVector(new double[]{i, j, k});
     }
