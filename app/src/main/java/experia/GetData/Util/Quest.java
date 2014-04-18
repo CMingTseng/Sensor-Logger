@@ -11,6 +11,8 @@ import org.la4j.vector.Vector;
 import org.la4j.vector.Vectors;
 import org.la4j.vector.dense.BasicVector;
 
+import java.util.concurrent.ExecutionException;
+
 import experia.GetData.model.Quaternion;
 
 /**
@@ -52,6 +54,10 @@ public class Quest {
         //Compute Quaternion wih latest accelerometer's data
         new ComputeQuaternion(this.accelerometer, magnetic).execute();
         System.arraycopy(magnetic, 0, this.magnetic, 0, 3);
+    }
+
+    public void compute(float[] acc, float[] magnetic) {
+        new ComputeQuaternion(acc, magnetic).execute();
     }
 
     private class ComputeQuaternion extends AsyncTask<Void, Void, Quaternion> {

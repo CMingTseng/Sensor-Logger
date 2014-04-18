@@ -8,9 +8,44 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="experia.GetData.activity.QuestActivity">
 
-    <TextView
-        android:text="@string/hello_world"
+
+    <Button
+        android:id="@+id/data_record_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Record" />
+
+    <Button
+        android:id="@+id/calculate_quaternion_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/data_record_button"
+        android:text="Compute Quaternion" />
+
+    <Button
+        android:id="@+id/button_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/calculate_quaternion_button"
+        android:text="Clear" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Stop"
+        android:layout_below="@+id/data_record_button"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/data_record_button">
+
+        <TextView
+            android:id="@+id/result_textview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </ScrollView>
 
 </RelativeLayout>
