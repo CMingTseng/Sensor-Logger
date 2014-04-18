@@ -1,5 +1,6 @@
 package experia.GetData.Util;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.la4j.LinearAlgebra;
@@ -42,14 +43,38 @@ public class Quest {
 
     public void addAccelerometer(float[] acc) {
         //Compute Quaternion with latest magnetic field's data
-        computeQuaternion(acc, this.magnetic);
+//        computeQuaternion(acc, this.magnetic);
+        new ComputeQuaternion(acc, this.magnetic).execute();
         System.arraycopy(acc, 0, this.accelerometer, 0, 3);
     }
 
     public void addMagnetic(float[] magnetic) {
         //Compute Quaternion wih latest accelerometer's data
-        computeQuaternion(this.accelerometer, magnetic);
+        new ComputeQuaternion(this.accelerometer, magnetic).execute();
         System.arraycopy(magnetic, 0, this.magnetic, 0, 3);
+    }
+
+    private class ComputeQuaternion extends AsyncTask<Void, Void, Quaternion> {
+        private float[] mAcc;
+        private float[] mMagnetic;
+
+        public ComputeQuaternion(float[] acc, float[] magnetic) {
+            mAcc = acc;
+            mMagnetic = magnetic;
+        }
+
+
+        @Override
+        protected Quaternion doInBackground(Void... params) {
+            return computeQuaternion(mAcc, mMagnetic);
+        }
+
+        @Override
+        protected void onPostExecute(Quaternion quaternion) {
+            super.onPostExecute(quaternion);
+            //Print log
+            Log.d(TAG, "@@@Computed quaternion:" + ((quaternion != null) ? quaternion.toString() : "null"));
+        }
     }
 
     private Quaternion computeQuaternion(float[] acc, float[] magnetic) {
@@ -124,18 +149,15 @@ public class Quest {
 //        Log.i(TAG, "matrix of vectors:\n" + matrixes[0].toString());
 //        Log.i(TAG, "matrix of values:\n" + matrixes[1].toString());
 
-        double max = matrixes[1].get(0,0);
+        double max = matrixes[1].get(0, 0);
         int index = 0;
-        for (int i=1; i<4; i++) {
-            if (matrixes[1].get(i,i) > max) {
+        for (int i = 1; i < 4; i++) {
+            if (matrixes[1].get(i, i) > max) {
                 index = i;
                 max = matrixes[1].get(i, i);
             }
         }
-        Log.i(TAG, "Quaternion:" + matrixes[0].getColumn(index));
-
-        Quaternion quaternion = new Quaternion(0, 0, 0, 0);
-        return quaternion;
+        return new Quaternion(matrixes[0].getColumn(index));
     }
 
     private double scalarCrossProduct(Vector vector1, Vector vector2) {

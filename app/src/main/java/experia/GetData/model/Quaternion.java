@@ -1,5 +1,7 @@
 package experia.GetData.model;
 
+import org.la4j.vector.Vector;
+
 public class Quaternion {
     private final double x0, x1, x2, x3;
 
@@ -11,9 +13,17 @@ public class Quaternion {
         this.x3 = x3;
     }
 
+    public Quaternion(Vector vector) {
+        this.x0 = vector.get(0);
+        this.x1 = vector.get(1);
+        this.x2 = vector.get(2);
+        this.x3 = vector.get(3);
+    }
+
     // return a string representation of the invoking object
     public String toString() {
-        return x0 + " + " + x1 + "i + " + x2 + "j + " + x3 + "k";
+//        return x0 + " + " + x1 + "i + " + x2 + "j + " + x3 + "k";
+        return x0 + " " + x1 + " " + x2 + " " + x3 + "";
     }
 
     // return the quaternion norm

@@ -2,6 +2,8 @@ package experia.GetData.filter;
 
 import android.util.Log;
 
+import experia.GetData.Util.Config;
+
 /**
  * Created by Le Van Hoang on 2014/04/09.
  */
@@ -44,7 +46,9 @@ public class LowPassFilter {
         // Calculate Wikipedia low-pass alpha
         alpha = dt / (timeConstant + dt);
 
-        Log.d("tag", String.valueOf(alpha));
+        if (Config.DEBUG) {
+            Log.d("tag", String.valueOf(alpha));
+        }
         count++;
 
         if (count > 5) {
