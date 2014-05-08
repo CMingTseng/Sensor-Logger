@@ -3,17 +3,13 @@ package experia.GetData.Util;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.badlogic.gdx.math.Quaternion;
+
 import org.la4j.LinearAlgebra;
-import org.la4j.linear.LinearSystemSolver;
 import org.la4j.matrix.Matrix;
 import org.la4j.matrix.dense.Basic2DMatrix;
 import org.la4j.vector.Vector;
-import org.la4j.vector.Vectors;
 import org.la4j.vector.dense.BasicVector;
-
-import java.util.concurrent.ExecutionException;
-
-import experia.GetData.model.Quaternion;
 
 /**
  * Created by Le Van Hoang on 2014/04/09.
@@ -57,7 +53,9 @@ public class Quest {
     }
 
     public void compute(float[] acc, float[] magnetic) {
+        //Time 1
         new ComputeQuaternion(acc, magnetic).execute();
+        //Time 2
     }
 
     private class ComputeQuaternion extends AsyncTask<Void, Void, Quaternion> {
@@ -79,7 +77,10 @@ public class Quest {
         protected void onPostExecute(Quaternion quaternion) {
             super.onPostExecute(quaternion);
             //Print log
-            Log.d(TAG, "@@@Computed quaternion:" + ((quaternion != null) ? quaternion.toString() : "null"));
+
+            String log = String.format("Acc: %f, %f , %f Magnetic: %f %f %f ", mAcc[0], mAcc[1], mAcc[2], mMagnetic[0], mMagnetic[1], mMagnetic[2]);
+            Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? "Yaw:" + quaternion.getYaw() + "Pitch:" + quaternion.getPitch() + "Roll:" + quaternion.getRoll() : "null"));
+            Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? quaternion.toString() : "null"));
         }
     }
 
@@ -137,6 +138,20 @@ public class Quest {
         K.setRow(3, Z1);
         K.setColumn(3, Z1);
 
+        //Convert to Jama Matrix
+//        double a[][] = new double[][]{
+//                {K.get(0,0) ,K.get(0,1), K.get(0,2), K.get(0,3)},
+//                {K.get(1,0) ,K.get(1,1), K.get(1,2), K.get(1,3)},
+//                {K.get(2,0) ,K.get(2,1), K.get(2,2), K.get(2,3)},
+//                {K.get(3,0) ,K.get(3,1), K.get(3,2), K.get(3,3)}};
+//        jama.Matrix KK = new jama.Matrix(a);
+
+        Matrix KK = K.subtract((new Basic2DMatrix().factory().createIdentityMatrix(4).multiply(lamda_max)));
+
+        //Return {U, D, V}
+        Matrix[] matrixes = KK.withDecompositor(LinearAlgebra.DecompositorFactory.SVD).decompose();
+
+
         //Giai matrix
         //K * Quaternion = lamda_max * Quaternion
         // (K - lamda_max * I ) * Quaternion = 0
@@ -149,21 +164,30 @@ public class Quest {
 //        Vector q = linearSystemSolver.solve(new BasicVector().factory().createConstantVector(4, 0.0));
 
         //Find all eigen value and vector
-        Matrix[] matrixes = K.withDecompositor(LinearAlgebra.DecompositorFactory.EIGEN).decompose();
+//        Matrix[] matrixes = K.withDecompositor(LinearAlgebra.DecompositorFactory.EIGEN).decompose();
 
 //        Log.i(TAG, "lamda:" + lamda_max);
 //        Log.i(TAG, "matrix of vectors:\n" + matrixes[0].toString());
 //        Log.i(TAG, "matrix of values:\n" + matrixes[1].toString());
 
-        double max = matrixes[1].get(0, 0);
+//        double max = matrixes[1].get(0, 0);
+
+        //Find column of V corresponding with Wi = 0;
         int index = 0;
-        for (int i = 1; i < 4; i++) {
-            if (matrixes[1].get(i, i) > max) {
+        for (int i = 0; i < 4; i++) {
+            if (Math.abs(matrixes[1].get(i, i)) < 0.000001) {
                 index = i;
-                max = matrixes[1].get(i, i);
+                break;
+            }
+
+            //can not find 0 in D matrix
+            if (i == 3) {
+                Log.d(TAG, "@@@" + matrixes[1].get(0, 0) + " " + matrixes[1].get(1, 1) + " " + matrixes[1].get(2, 2) + " " + matrixes[1].get(3, 3));
+                return null;
             }
         }
-        return new Quaternion(matrixes[0].getColumn(index));
+        Vector q = matrixes[2].getColumn(index);
+        return new Quaternion((float)q.get(0), (float)q.get(1), (float)q.get(2), (float)q.get(3));
     }
 
     private double scalarCrossProduct(Vector vector1, Vector vector2) {
