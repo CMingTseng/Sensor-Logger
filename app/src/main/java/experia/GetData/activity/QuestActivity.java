@@ -12,10 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import experia.GetData.R;
 import experia.GetData.Util.Config;
 import experia.GetData.Util.Quest;
@@ -40,13 +43,18 @@ public class QuestActivity extends Activity implements SensorEventListener, View
     private ArrayList<float[]> accLists = new ArrayList<float[]>();
     private ArrayList<float[]> magneticLists = new ArrayList<float[]>();
     private ArrayList<float[]> gyroLists = new ArrayList<float[]>();
-    private boolean shoudRecordData = false;
+    private boolean shouldRecordData = false;
+    private String logFileName = "log.txt";
+
+    @InjectView(R.id.log_name_set_btn) public Button setLogNameBtn;
+    @InjectView(R.id.log_name_edit_text) public EditText logNameEditext;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quest);
+        ButterKnife.inject(this);
 
         recordBtn = (Button) findViewById(R.id.data_record_button);
         computeQuaternionBtn = (Button) findViewById(R.id.calculate_quaternion_button);
@@ -63,6 +71,8 @@ public class QuestActivity extends Activity implements SensorEventListener, View
 
         //Init LowPassFilter
         lowPassFilter = new LowPassFilter();
+
+        setLogNameBtn.setOnClickListener(this);
     }
 
     @Override
@@ -101,7 +111,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (shoudRecordData) {
+        if (shouldRecordData) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
                 lowPassFilterOutput = lowPassFilter.addSamples(acceleration);
@@ -140,8 +150,8 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 break;
             case R.id.data_record_button:
                 //Start to record accelerometer, magnetic, gyro
-                shoudRecordData = !shoudRecordData;
-                recordingStatus.setText(shoudRecordData ? "Status: Recording" : "Status: Stop");
+                shouldRecordData = !shouldRecordData;
+                recordingStatus.setText(shouldRecordData ? "Status: Recording" : "Status: Stop");
                 break;
             case R.id.calculate_quaternion_button:
                 //Calculate quaternion from accLists and magneticLists
@@ -151,6 +161,9 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 for (int i = 0; i < size; i++) {
                     Quest.getInstance().compute(accLists.get(i), magneticLists.get(i));
                 }
+                break;
+            case R.id.log_name_set_btn:
+                logFileName = logNameEditext.getText().toString();
                 break;
             default:
                 //Do nothing

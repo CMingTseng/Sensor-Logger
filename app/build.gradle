@@ -23,4 +23,5 @@ dependencies {
     compile 'org.la4j:la4j:0.4.9@jar'
     compile files('libs/JKalman.jar')
     compile files('libs/gdx.jar')
+    compile 'com.jakewharton:butterknife:5.0.1'
 }
