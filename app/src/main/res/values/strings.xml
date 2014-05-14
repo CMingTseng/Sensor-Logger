@@ -6,5 +6,11 @@
     <string name="title_activity_quest">QuestActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="log_file_hint">log file</string>
+    <string name="set_btn">Set</string>
+    <string name="compute_quaternion">Compute Quaternion</string>
+    <string name="status_stop">Status: Stop</string>
+    <string name="clear">Clear</string>
+    <string name="record">Record</string>
 
 </resources>

@@ -79,8 +79,10 @@ public class Quest {
             //Print log
 
             String log = String.format("Acc: %f, %f , %f Magnetic: %f %f %f ", mAcc[0], mAcc[1], mAcc[2], mMagnetic[0], mMagnetic[1], mMagnetic[2]);
-            Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? "Yaw:" + quaternion.getYaw() + "Pitch:" + quaternion.getPitch() + "Roll:" + quaternion.getRoll() : "null"));
+            Log.d(TAG, "@@@" + ((quaternion != null) ? "Yaw:" + quaternion.getYaw() + "Pitch:" + quaternion.getPitch() + "Roll:" + quaternion.getRoll() : "null"));
             Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? quaternion.toString() : "null"));
+
+            //Export to log file
         }
     }
 

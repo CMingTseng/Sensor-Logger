@@ -8,33 +8,61 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="experia.GetData.activity.QuestActivity">
 
+    <RelativeLayout
+        android:id="@+id/log_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentTop="true">
+
+        <EditText
+            android:id="@+id/log_name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:hint="@string/log_file_hint"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/log_name_set_btn" />
+
+        <Button
+            android:id="@+id/log_name_set_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/set_btn" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/data_record_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Record" />
+        android:layout_below="@id/log_name"
+        android:text="@string/record" />
 
     <Button
         android:id="@+id/calculate_quaternion_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/data_record_button"
-        android:text="Compute Quaternion" />
+        android:layout_below="@id/log_name"
+        android:text="@string/compute_quaternion" />
 
     <Button
         android:id="@+id/button_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/calculate_quaternion_button"
-        android:text="Clear" />
+        android:layout_below="@id/log_name"
+        android:text="@string/clear" />
 
     <TextView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status: Stop"
-        android:layout_below="@+id/data_record_button"/>
+        android:text="@string/status_stop"
+        android:layout_below="@+id/data_record_button" />
 
     <ScrollView
         android:layout_width="match_parent"
