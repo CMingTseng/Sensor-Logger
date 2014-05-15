@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import experia.GetData.R;
+import experia.GetData.Util.Common;
 import experia.GetData.Util.Config;
 import experia.GetData.Util.Quest;
 import experia.GetData.filter.LowPassFilter;
@@ -44,7 +45,6 @@ public class QuestActivity extends Activity implements SensorEventListener, View
     private ArrayList<float[]> magneticLists = new ArrayList<float[]>();
     private ArrayList<float[]> gyroLists = new ArrayList<float[]>();
     private boolean shouldRecordData = false;
-    private String logFileName = "log.txt";
 
     @InjectView(R.id.log_name_set_btn) public Button setLogNameBtn;
     @InjectView(R.id.log_name_edit_text) public EditText logNameEditext;
@@ -163,7 +163,9 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 }
                 break;
             case R.id.log_name_set_btn:
-                logFileName = logNameEditext.getText().toString();
+                if (logNameEditext.getText() != null) {
+                    Common.fileName = logNameEditext.getText().toString();
+                }
                 break;
             default:
                 //Do nothing
