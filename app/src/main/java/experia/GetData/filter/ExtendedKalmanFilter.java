@@ -47,7 +47,7 @@ public class ExtendedKalmanFilter {
     private double D_i = 0.4;
     // 0.5s
     private double tau_i = 0.5;
-    //TODO: deta_t = ? , 20ms = 0.02s
+    //TODO: deta_t = ? , 20ms = 0.02s, constant ?
     private double delta_t = 0.02;
 
     private double q11 = (D_i * (1 - Math.exp(-2 * delta_t / tau_i))) / (2 * tau_i);
@@ -75,17 +75,48 @@ public class ExtendedKalmanFilter {
         double f11;
         double f22;
         double f33;
+
         double f41;
+        double f42;
+        double f43;
+        double f44;
+        double f45;
+        double f46;
+        double f47;
+
+        double f51;
+        double f52;
+        double f53;
+        double f54;
+        double f55;
+        double f56;
+        double f57;
+
+        double f61;
+        double f62;
+        double f63;
+        double f64;
+        double f65;
+        double f66;
+        double f67;
+
+        double f71;
+        double f72;
+        double f73;
+        double f74;
+        double f75;
+        double f76;
+        double f77;
 
 
         return F_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
-                {q11, 0, 0, 0, 0, 0, 0},
-                {0, q22, 0, 0, 0, 0, 0},
-                {0, 0, q33, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0}
+                {f11, 0, 0, 0, 0, 0, 0},
+                {0, f22, 0, 0, 0, 0, 0},
+                {0, 0, f33, 0, 0, 0, 0},
+                {f41, f42, f43, f44, f45, f46, f47},
+                {f51, f52, f53, f54, f55, f56, f57},
+                {f61, f62, f63, f64, f65, f66, f67},
+                {f71, f72, f73, f74, f75, f76, f77}
         });
     }
 
