@@ -1,122 +1,133 @@
-/*
- * Copyright (c) 2008, Prasanna Velagapudi <pkv@cs.cmu.edu>
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE PROJECT AND CONTRIBUTORS ''AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE PROJECT AND CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package experia.GetData.filter;
 
-import org.apache.commons.math3.linear.RealMatrix;
+import com.badlogic.gdx.math.Quaternion;
+
+import org.la4j.LinearAlgebra;
+import org.la4j.inversion.MatrixInverter;
+import org.la4j.matrix.Matrix;
+import org.la4j.matrix.dense.Basic2DMatrix;
+
+import java.util.ArrayList;
 
 /**
- * An extension of the Kalman filter that allows for the motion models to be 
- * linearized around the current state at each timestep.
- * 
- * Note that directly using the "set" accessors to the model and observation 
- * matrices will have no effect, as these matrices are now generated via the
- * provided linearization functions.
- * 
- * @author Prasanna Velagapudi <pkv@cs.cmu.edu>
+ * Created by Le Van Hoang on 2014/05/30.
  */
-public abstract class ExtendedKalmanFilter extends KalmanFilter {
+public class ExtendedKalmanFilter {
 
-    /**
-     * Process model linearization function.
-     * (Creates state transition matrix.)
-     * @param x the state around which to linearize.
-     * @return the linearized process model.
-     */
-    protected abstract RealMatrix F(RealMatrix x);
+    private ArrayList<float[]> gyroList;
+    private ArrayList<Quaternion> quaternionList;
 
-    /**
-     * Process noise linearization function.
-     * @param x the state around which to linearize.
-     * @return the linearized process noise.
-     */
-    protected abstract RealMatrix Q(RealMatrix x);
+    private Matrix F_k;
 
-    /**
-     * Control model linearization function.
-     * (Maps control vector to state space.)
-     * @param x the state around which to linearize.
-     * @return the linearized control model.
-     */
-    protected abstract RealMatrix B(RealMatrix x);
+    // H is identity matrix
+    private Matrix H_k = new Basic2DMatrix().factory().createIdentityMatrix(7);
 
-    /**
-     * Observation model linearization function.
-     * (Maps observations to state space.)
-     * @param x the state around which to linearize.
-     * @return the linearized observation model.
-     */
-    protected abstract RealMatrix H(RealMatrix x);
+    // R_k is diagonal matrix
+    // TODO: MARG values, fix this later
+    private double r11 = 0.01;
+    private double r22 = 0.01;
+    private double r33 = 0.01;
+    private double r44 = 0.0001;
+    private double r55 = 0.0001;
+    private double r66 = 0.0001;
+    private double r77 = 0.0001;
+    private Matrix R_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
+            {r11, 0, 0, 0, 0, 0, 0},
+            {0, r22, 0, 0, 0, 0, 0},
+            {0, 0, r33, 0, 0, 0, 0},
+            {0, 0, 0, r44, 0, 0, 0},
+            {0, 0, 0, 0, r55, 0, 0},
+            {0, 0, 0, 0, 0, r66, 0},
+            {0, 0, 0, 0, 0, 0, r77}
+    });
 
-    /**
-     * Observation noise linearization function.
-     * @param x the state around which to linearize.
-     * @return the linearized observation noise.
-     */
-    protected abstract RealMatrix R(RealMatrix x);
+    //Q_k: process noise
+    //TODO: MARG values, fix this later
+    // 0.4 rad^2/s~2
+    private double D_i = 0.4;
+    // 0.5s
+    private double tau_i = 0.5;
+    //TODO: deta_t = ? , 20ms = 0.02s
+    private double delta_t = 0.02;
 
-    /**
-     * Constructs an extended Kalman filter with no default motion and 
-     * observation models.
-     * @param x the initial state estimate.
-     * @param P the initial state covariance.
-     */
-    public ExtendedKalmanFilter(RealMatrix x, RealMatrix P) {
-        super(x, P);
+    private double q11 = (D_i * (1 - Math.exp(-2 * delta_t / tau_i))) / (2 * tau_i);
+    private double q22 = q11;
+    private double q33 = q11;
+    private Matrix Q_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
+            {q11, 0, 0, 0, 0, 0, 0},
+            {0, q22, 0, 0, 0, 0, 0},
+            {0, 0, q33, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0}
+    });
+
+
+    public ExtendedKalmanFilter(ArrayList<float[]> gyroList, ArrayList<Quaternion> quaternionList) {
+        this.gyroList = gyroList;
+        this.quaternionList = quaternionList;
     }
-    
-    /**
-     * @see KalmanFilter#predict(org.apache.commons.math.linear.RealMatrix)
-     */
-    @Override
-    public void predict(RealMatrix u) {
-        _F = F(_x);
-        _Q = Q(_x);
-        _B = B(_x);
 
-        predict(u);
+    public Matrix F_k(Matrix estimate_x_k) {
     }
-    
-    /**
-     * @see KalmanFilter#update(org.apache.commons.math.linear.RealMatrix) 
-     */
-    @Override
-    public void update(RealMatrix z) {
-        _H = H(_x);
-        _R = R(_x);
-        
-        update(z);
+
+    public void doKalmanFilter() {
+
+        //predict x_i , p_i
+        Matrix predict_x_k = null;  //TODO: row matrix ?
+        Matrix predict_p_k = null;
+
+        //estimate x_i, p_i
+        Matrix estimate_x_k;
+        Matrix estimate_p_k;
+
+        //measurement z_k;
+        Matrix measure_z_k;
+
+        //Kalman gain
+        Matrix K_k;
+
+        //Identity matrix
+        Matrix I = new Basic2DMatrix().factory().createIdentityMatrix(7);
+
+        int n = gyroList.size();
+        int m = quaternionList.size();
+        int size = (m >= n) ? n : m;
+
+        int i = 0;
+        while (i<size) {
+            if (gyroList.get(i) == null || quaternionList.get(i) == null) {
+                i++;
+            } else {
+                //Init first state
+                float[] firstGyro = gyroList.get(i);
+                Quaternion firstQuaternion = quaternionList.get(i);
+                predict_x_k = new Basic2DMatrix(new double[][]{{(double)firstGyro[0], (double)firstGyro[1],(double)firstGyro[2], firstQuaternion.x, firstQuaternion.y, firstQuaternion.z, firstQuaternion.w}});
+                predict_p_k = new Basic2DMatrix().factory().createIdentityMatrix(7);
+                break;
+            }
+        }
+        for (; i < size; i++) {
+            if (gyroList.get(i) != null && quaternionList.get(i) != null && predict_x_k != null && predict_p_k != null) {
+
+                //Calculate Kalman gain
+                Matrix inverse = H_k.multiply(predict_p_k).multiply(H_k.transpose()).add(R_k).withInverter(LinearAlgebra.INVERTER).inverse();
+                K_k = predict_p_k.multiply(H_k.transpose()).multiply(inverse);
+
+                //Update equation
+                float[] gyro = gyroList.get(i);
+                Quaternion quaternion = quaternionList.get(i);
+                measure_z_k = new Basic2DMatrix(new double[][]{{(double)gyro[0], (double)gyro[1],(double)gyro[2], quaternion.x, quaternion.y, quaternion.z, quaternion.w}});
+
+                estimate_x_k = predict_x_k.add(K_k.multiply(measure_z_k.subtract(predict_x_k)));
+                estimate_p_k = (I.subtract(K_k.multiply(H_k))).multiply(predict_p_k);
+
+                //Projection, predict next values
+                predict_x_k = F_k.multiply(estimate_x_k);
+                predict_p_k = F_k.multiply(estimate_p_k).multiply(F_k.transpose()).add(F_k);
+            }
+        }
     }
-    
-    /**
-     * @see KalmanFilter#setState(org.apache.commons.math.linear.RealMatrix) 
-     */
-    @Override
-    public void setState(RealMatrix x) {
-        super.setState(x);
-    }
+
 }
