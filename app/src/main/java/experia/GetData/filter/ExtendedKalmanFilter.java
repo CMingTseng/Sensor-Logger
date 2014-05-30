@@ -69,7 +69,24 @@ public class ExtendedKalmanFilter {
         this.quaternionList = quaternionList;
     }
 
+    //Transition matrix
     public Matrix F_k(Matrix estimate_x_k) {
+        //constant variable
+        double f11;
+        double f22;
+        double f33;
+        double f41;
+
+
+        return F_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
+                {q11, 0, 0, 0, 0, 0, 0},
+                {0, q22, 0, 0, 0, 0, 0},
+                {0, 0, q33, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0}
+        });
     }
 
     public void doKalmanFilter() {
@@ -96,14 +113,14 @@ public class ExtendedKalmanFilter {
         int size = (m >= n) ? n : m;
 
         int i = 0;
-        while (i<size) {
+        while (i < size) {
             if (gyroList.get(i) == null || quaternionList.get(i) == null) {
                 i++;
             } else {
                 //Init first state
                 float[] firstGyro = gyroList.get(i);
                 Quaternion firstQuaternion = quaternionList.get(i);
-                predict_x_k = new Basic2DMatrix(new double[][]{{(double)firstGyro[0], (double)firstGyro[1],(double)firstGyro[2], firstQuaternion.x, firstQuaternion.y, firstQuaternion.z, firstQuaternion.w}});
+                predict_x_k = new Basic2DMatrix(new double[][]{{(double) firstGyro[0], (double) firstGyro[1], (double) firstGyro[2], firstQuaternion.x, firstQuaternion.y, firstQuaternion.z, firstQuaternion.w}});
                 predict_p_k = new Basic2DMatrix().factory().createIdentityMatrix(7);
                 break;
             }
@@ -118,7 +135,7 @@ public class ExtendedKalmanFilter {
                 //Update equation
                 float[] gyro = gyroList.get(i);
                 Quaternion quaternion = quaternionList.get(i);
-                measure_z_k = new Basic2DMatrix(new double[][]{{(double)gyro[0], (double)gyro[1],(double)gyro[2], quaternion.x, quaternion.y, quaternion.z, quaternion.w}});
+                measure_z_k = new Basic2DMatrix(new double[][]{{(double) gyro[0], (double) gyro[1], (double) gyro[2], quaternion.x, quaternion.y, quaternion.z, quaternion.w}});
 
                 estimate_x_k = predict_x_k.add(K_k.multiply(measure_z_k.subtract(predict_x_k)));
                 estimate_p_k = (I.subtract(K_k.multiply(H_k))).multiply(predict_p_k);
