@@ -64,10 +64,24 @@
         android:text="@string/status_stop"
         android:layout_below="@+id/data_record_button" />
 
+    <Button
+        android:id="@+id/kalman_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/status"
+        android:text="Kalman Filter" />
+
+    <TextView
+        android:id="@+id/kalman_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/status_stop"
+        android:layout_below="@+id/kalman_button" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/data_record_button">
+        android:layout_below="@+id/kalman_button">
 
         <TextView
             android:id="@+id/result_textview"

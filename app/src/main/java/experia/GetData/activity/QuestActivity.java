@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.badlogic.gdx.math.Quaternion;
+
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
@@ -26,7 +28,7 @@ import experia.GetData.Util.Quest;
 import experia.GetData.filter.LowPassFilter;
 
 
-public class QuestActivity extends Activity implements SensorEventListener, View.OnClickListener {
+public class QuestActivity extends Activity implements SensorEventListener, View.OnClickListener, Quest.OnTaskComplete {
 
     public static final String TAG = "QuestActivity";
 
@@ -44,6 +46,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
     private ArrayList<float[]> accLists = new ArrayList<float[]>();
     private ArrayList<float[]> magneticLists = new ArrayList<float[]>();
     private ArrayList<float[]> gyroLists = new ArrayList<float[]>();
+    private ArrayList<Quaternion> quaternions = new ArrayList<Quaternion>();
     private boolean shouldRecordData = false;
 
     @InjectView(R.id.log_name_set_btn) public Button setLogNameBtn;
@@ -131,6 +134,10 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 float[] mag = new float[]{magnetic[0], magnetic[1], magnetic[2]};
                 magneticLists.add(mag);
 //                Quest.getInstance().addMagnetic(magnetic);
+            } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                float[] gyro = new float[3];
+                System.arraycopy(event.values, 0, gyro, 0, event.values.length);
+                gyroLists.add(gyro);
             }
         }
     }
@@ -158,8 +165,10 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 int m = accLists.size();
                 int n = magneticLists.size();
                 int size = (m < n) ? m : n;
+                //Clear all elements of quaternions
+                quaternions.clear();
                 for (int i = 0; i < size; i++) {
-                    Quest.getInstance().compute(accLists.get(i), magneticLists.get(i));
+                    Quest.getInstance(this).compute(accLists.get(i), magneticLists.get(i));
                 }
                 break;
             case R.id.log_name_set_btn:
@@ -167,8 +176,16 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                     Common.fileName = logNameEditext.getText().toString();
                 }
                 break;
+            case R.id.kalman_button:
+                //Kalman filter
+
             default:
                 //Do nothing
         }
+    }
+
+    @Override
+    public void updateQuaternion(Quaternion quaternion) {
+        quaternions.add(quaternion);
     }
 }

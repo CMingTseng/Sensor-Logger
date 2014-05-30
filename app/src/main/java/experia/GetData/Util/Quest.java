@@ -17,6 +17,10 @@ import org.la4j.vector.dense.BasicVector;
  */
 public class Quest {
 
+    public interface OnTaskComplete {
+        void updateQuaternion(Quaternion quaternion);
+    }
+
     public static final String TAG = "Quest";
 
     private float[] accelerometer = new float[3];
@@ -30,13 +34,18 @@ public class Quest {
     //North
     private final Vector v2 = new BasicVector(new double[]{1.0, 0.0, 0.0});
 
-    private static Quest ourInstance = new Quest();
+    private static Quest ourInstance;
+    private OnTaskComplete taskCompleteListener;
 
-    public static Quest getInstance() {
+    public static Quest getInstance(OnTaskComplete listener) {
+        if (ourInstance == null) {
+            ourInstance = new Quest(listener);
+        }
         return ourInstance;
     }
 
-    private Quest() {
+    private Quest(OnTaskComplete listener) {
+        taskCompleteListener = listener;
     }
 
     public void addAccelerometer(float[] acc) {
@@ -76,6 +85,9 @@ public class Quest {
         @Override
         protected void onPostExecute(Quaternion quaternion) {
             super.onPostExecute(quaternion);
+            //Listener
+            taskCompleteListener.updateQuaternion(quaternion);
+
             //Print log
 
             String log = String.format("Acc: %f, %f , %f Magnetic: %f %f %f Quaternion: %s Yaw: %s Pitch: %s Roll: %s \n", mAcc[0], mAcc[1], mAcc[2], mMagnetic[0], mMagnetic[1], mMagnetic[2], ((quaternion != null) ? quaternion.toString() : "null"), ((quaternion != null) ? quaternion.getYaw() : "null"), ((quaternion != null) ? quaternion.getPitch() : "null"), ((quaternion != null) ? quaternion.getRoll() : "null"));
