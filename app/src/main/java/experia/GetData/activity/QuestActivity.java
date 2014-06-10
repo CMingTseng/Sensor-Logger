@@ -25,6 +25,7 @@ import experia.GetData.R;
 import experia.GetData.Util.Common;
 import experia.GetData.Util.Config;
 import experia.GetData.Util.Quest;
+import experia.GetData.filter.ExtendedKalmanFilter;
 import experia.GetData.filter.LowPassFilter;
 
 
@@ -41,6 +42,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
     private Button recordBtn;
     private Button computeQuaternionBtn;
     private Button clearBtn;
+    private Button kalmanButton;
     private TextView resultTextView;
     private TextView recordingStatus;
     private ArrayList<float[]> accLists = new ArrayList<float[]>();
@@ -62,12 +64,14 @@ public class QuestActivity extends Activity implements SensorEventListener, View
         recordBtn = (Button) findViewById(R.id.data_record_button);
         computeQuaternionBtn = (Button) findViewById(R.id.calculate_quaternion_button);
         clearBtn = (Button) findViewById(R.id.button_clear);
+        kalmanButton = (Button) findViewById(R.id.kalman_button);
         resultTextView = (TextView) findViewById(R.id.result_textview);
         recordingStatus = (TextView) findViewById(R.id.status);
 
         recordBtn.setOnClickListener(this);
         computeQuaternionBtn.setOnClickListener(this);
         clearBtn.setOnClickListener(this);
+        kalmanButton.setOnClickListener(this);
 
         //get sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -178,7 +182,8 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 break;
             case R.id.kalman_button:
                 //Kalman filter
-
+                ExtendedKalmanFilter kalmanFilter = new ExtendedKalmanFilter(gyroLists, quaternions);
+                kalmanFilter.doKalmanFilter();
             default:
                 //Do nothing
         }

@@ -1,9 +1,10 @@
 package experia.GetData.filter;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Quaternion;
 
 import org.la4j.LinearAlgebra;
-import org.la4j.inversion.MatrixInverter;
 import org.la4j.matrix.Matrix;
 import org.la4j.matrix.dense.Basic2DMatrix;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  */
 public class ExtendedKalmanFilter {
 
+    public String TAG = this.getClass().getName();
     private ArrayList<float[]> gyroList;
     private ArrayList<Quaternion> quaternionList;
 
@@ -70,46 +72,56 @@ public class ExtendedKalmanFilter {
     }
 
     //Transition matrix
-    public Matrix F_k(Matrix estimate_x_k) {
+    public void updateF_k(Matrix estimate_x_k) {
+
+
+        double x1 = estimate_x_k.get(0, 0);
+        double x2 = estimate_x_k.get(1, 0);
+        double x3 = estimate_x_k.get(2, 0);
+        double x4 = estimate_x_k.get(3, 0);
+        double x5 = estimate_x_k.get(4, 0);
+        double x6 = estimate_x_k.get(5, 0);
+        double x7 = estimate_x_k.get(6, 0);
+
         //constant variable
-        double f11;
-        double f22;
-        double f33;
+        double f11 = Math.exp(-delta_t / tau_i);
+        double f22 = f11;
+        double f33 = f11;
 
-        double f41;
-        double f42;
-        double f43;
-        double f44;
-        double f45;
-        double f46;
-        double f47;
+        double f41 = -(x5 * delta_t / 2);
+        double f42 = -(x6 * delta_t / 2);
+        double f43 = -(x7 * delta_t / 2);
+        double f44 = 1;
+        double f45 = -(x1 * delta_t / 2);
+        double f46 = -(x2 * delta_t / 2);
+        double f47 = -(x3 * delta_t / 2);
 
-        double f51;
-        double f52;
-        double f53;
-        double f54;
-        double f55;
-        double f56;
-        double f57;
+        double f51 = (x4 * delta_t / 2);
+        double f52 = -(x7 * delta_t / 2);
+        double f53 = (x6 * delta_t / 2);
+        double f54 = (x1 * delta_t / 2);
+        double f55 = 1;
+        double f56 = (x3 * delta_t / 2);
+        double f57 = (-x2 * delta_t / 2);
 
-        double f61;
-        double f62;
-        double f63;
-        double f64;
-        double f65;
-        double f66;
-        double f67;
+        double f61 = (x7 * delta_t / 2);
+        double f62 = (x4 * delta_t / 2);
+        double f63 = -(x5 * delta_t / 2);
+        double f64 = (x2 * delta_t / 2);
+        double f65 = -(x3 * delta_t) / 2;
+        double f66 = 1;
+        double f67 = (x1 * delta_t / 2);
 
-        double f71;
-        double f72;
-        double f73;
-        double f74;
-        double f75;
-        double f76;
-        double f77;
+        double f71 = -(x6 * delta_t / 2);
+        double f72 = (x5 * delta_t / 2);
+        double f73 = (x4 * delta_t / 2);
+        double f74 = (x3 * delta_t / 2);
+        double f75 = (x2 * delta_t / 2);
+        double f76 = -(x1 * delta_t / 2);
+        double f77 = 1;
 
 
-        return F_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
+        F_k = new Basic2DMatrix().factory().createMatrix(new double[][]{
                 {f11, 0, 0, 0, 0, 0, 0},
                 {0, f22, 0, 0, 0, 0, 0},
                 {0, 0, f33, 0, 0, 0, 0},
@@ -151,7 +163,7 @@ public class ExtendedKalmanFilter {
                 //Init first state
                 float[] firstGyro = gyroList.get(i);
                 Quaternion firstQuaternion = quaternionList.get(i);
-                predict_x_k = new Basic2DMatrix(new double[][]{{(double) firstGyro[0], (double) firstGyro[1], (double) firstGyro[2], firstQuaternion.x, firstQuaternion.y, firstQuaternion.z, firstQuaternion.w}});
+                predict_x_k = new Basic2DMatrix(new double[][]{{(double) firstGyro[0]}, {(double) firstGyro[1]}, {(double) firstGyro[2]}, {firstQuaternion.x}, {firstQuaternion.y}, {firstQuaternion.z}, {firstQuaternion.w}});
                 predict_p_k = new Basic2DMatrix().factory().createIdentityMatrix(7);
                 break;
             }
@@ -166,12 +178,16 @@ public class ExtendedKalmanFilter {
                 //Update equation
                 float[] gyro = gyroList.get(i);
                 Quaternion quaternion = quaternionList.get(i);
-                measure_z_k = new Basic2DMatrix(new double[][]{{(double) gyro[0], (double) gyro[1], (double) gyro[2], quaternion.x, quaternion.y, quaternion.z, quaternion.w}});
+                measure_z_k = new Basic2DMatrix(new double[][]{{(double) gyro[0]}, {(double) gyro[1]}, {(double) gyro[2]}, {quaternion.x}, {quaternion.y}, {quaternion.z}, {quaternion.w}});
 
                 estimate_x_k = predict_x_k.add(K_k.multiply(measure_z_k.subtract(predict_x_k)));
                 estimate_p_k = (I.subtract(K_k.multiply(H_k))).multiply(predict_p_k);
 
+                String result = String.format("measure: %s %s %s %s estimated: %s %s %s %s", measure_z_k.get(3, 0), measure_z_k.get(4, 0), measure_z_k.get(5, 0), measure_z_k.get(6, 0), estimate_x_k.get(3, 0), estimate_x_k.get(4, 0), estimate_x_k.get(5, 0), estimate_x_k.get(6, 0));
+                Log.i(TAG, result);
+
                 //Projection, predict next values
+                updateF_k(estimate_x_k);
                 predict_x_k = F_k.multiply(estimate_x_k);
                 predict_p_k = F_k.multiply(estimate_p_k).multiply(F_k.transpose()).add(F_k);
             }
