@@ -10,6 +10,9 @@ import org.la4j.matrix.dense.Basic2DMatrix;
 
 import java.util.ArrayList;
 
+import experia.GetData.Util.Common;
+import experia.GetData.Util.Config;
+
 /**
  * Created by Le Van Hoang on 2014/05/30.
  */
@@ -184,7 +187,10 @@ public class ExtendedKalmanFilter {
                 estimate_p_k = (I.subtract(K_k.multiply(H_k))).multiply(predict_p_k);
 
                 String result = String.format("measure: %s %s %s %s estimated: %s %s %s %s", measure_z_k.get(3, 0), measure_z_k.get(4, 0), measure_z_k.get(5, 0), measure_z_k.get(6, 0), estimate_x_k.get(3, 0), estimate_x_k.get(4, 0), estimate_x_k.get(5, 0), estimate_x_k.get(6, 0));
-                Log.i(TAG, result);
+                if (Config.DEBUG) {
+                    Log.i(TAG, result);
+                }
+                Common.writeToFile(Common.fileName + "_kalman.txt", result);
 
                 //Projection, predict next values
                 updateF_k(estimate_x_k);

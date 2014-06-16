@@ -122,25 +122,32 @@ public class QuestActivity extends Activity implements SensorEventListener, View
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
                 lowPassFilterOutput = lowPassFilter.addSamples(acceleration);
+                String log = String.format("Time: %s Acc Raw: %f %f %f Filtered: %f %f %f",event.timestamp, acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]);
                 if (Config.DEBUG) {
-                    String log = String.format("Raw: %f %f %f Filtered: %f %f %f", acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]);
                     Log.d(TAG, log);
                 }
+                Common.writeToFile(Common.fileName + "_raw.txt", log);
                 float[] acceleration = new float[]{lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]};
                 accLists.add(acceleration);
 //                Quest.getInstance().addAccelerometer(lowPassFilterOutput);
             } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
+                String log = String.format("Time: %s Magnetic: %f %f %f",event.timestamp, magnetic[0], magnetic[1], magnetic[2]);
                 if (Config.DEBUG) {
-                    String log = String.format("Magnetic field: %f %f %f", magnetic[0], magnetic[1], magnetic[2]);
                     Log.d(TAG, log);
                 }
+                Common.writeToFile(Common.fileName + "_raw.txt", log);
                 float[] mag = new float[]{magnetic[0], magnetic[1], magnetic[2]};
                 magneticLists.add(mag);
 //                Quest.getInstance().addMagnetic(magnetic);
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                 float[] gyro = new float[3];
                 System.arraycopy(event.values, 0, gyro, 0, event.values.length);
+                String log = String.format("Time: %s Gyro: %f %f %f",event.timestamp, gyro[0], gyro[1], gyro[2]);
+                if (Config.DEBUG) {
+                    Log.d(TAG, log);
+                }
+                Common.writeToFile(Common.fileName + "_raw.txt", log);
                 gyroLists.add(gyro);
             }
         }

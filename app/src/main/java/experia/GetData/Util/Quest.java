@@ -94,7 +94,7 @@ public class Quest {
 //            Log.d(TAG, "@@@" + ((quaternion != null) ? "Yaw:" + quaternion.getYaw() + "Pitch:" + quaternion.getPitch() + "Roll:" + quaternion.getRoll() : "null"));
 //            Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? quaternion.toString() : "null"));
             Log.d(TAG, log);
-            Common.writeToFile(Common.fileName, log);
+            Common.writeToFile(Common.fileName + "_quest.txt", log);
 
             //Export to log file
         }
@@ -203,7 +203,12 @@ public class Quest {
             }
         }
         Vector q = matrixes[2].getColumn(index);
-        return new Quaternion((float)q.get(0), (float)q.get(1), (float)q.get(2), (float)q.get(3));
+
+        //Force to set first factor to positive
+        if (q.get(0) < 0) {
+            return new Quaternion((float) q.get(0) * (-1), (float) q.get(1) * (-1), (float) q.get(2) * (-1), (float) q.get(3) * (-1));
+        }
+        return new Quaternion((float) q.get(0), (float) q.get(1), (float) q.get(2), (float) q.get(3));
     }
 
     private double scalarCrossProduct(Vector vector1, Vector vector2) {
