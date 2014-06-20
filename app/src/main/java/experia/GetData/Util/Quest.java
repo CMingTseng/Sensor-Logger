@@ -90,7 +90,7 @@ public class Quest {
 
             //Print log
 
-            String log = String.format("Acc: %f, %f , %f Magnetic: %f %f %f Quaternion: %s Yaw: %s Pitch: %s Roll: %s \n", mAcc[0], mAcc[1], mAcc[2], mMagnetic[0], mMagnetic[1], mMagnetic[2], ((quaternion != null) ? quaternion.toString() : "null"), ((quaternion != null) ? quaternion.getYaw() : "null"), ((quaternion != null) ? quaternion.getPitch() : "null"), ((quaternion != null) ? quaternion.getRoll() : "null"));
+            String log = String.format("Acc: %f, %f , %f Magnetic: %f %f %f Quaternion: %s Yaw: %s Pitch: %s Roll: %s %s", mAcc[0], mAcc[1], mAcc[2], mMagnetic[0], mMagnetic[1], mMagnetic[2], ((quaternion != null) ? quaternion.toString() : "null"), ((quaternion != null) ? quaternion.getYaw() : "null"), ((quaternion != null) ? quaternion.getPitch() : "null"), ((quaternion != null) ? quaternion.getRoll() : "null"), System.getProperty("line.separator"));
 //            Log.d(TAG, "@@@" + ((quaternion != null) ? "Yaw:" + quaternion.getYaw() + "Pitch:" + quaternion.getPitch() + "Roll:" + quaternion.getRoll() : "null"));
 //            Log.d(TAG, "@@@" + log + "Quaternion: " + ((quaternion != null) ? quaternion.toString() : "null"));
             Log.d(TAG, log);

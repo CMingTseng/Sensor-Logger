@@ -122,7 +122,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
                 lowPassFilterOutput = lowPassFilter.addSamples(acceleration);
-                String log = String.format("Time: %s Acc Raw: %f %f %f Filtered: %f %f %f",event.timestamp, acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2]);
+                String log = String.format("Time: %s Acc Raw: %f %f %f Filtered: %f %f %f%s",event.timestamp, acceleration[0], acceleration[1], acceleration[2], lowPassFilterOutput[0], lowPassFilterOutput[1], lowPassFilterOutput[2], System.getProperty("line.separator"));
                 if (Config.DEBUG) {
                     Log.d(TAG, log);
                 }
@@ -132,7 +132,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
 //                Quest.getInstance().addAccelerometer(lowPassFilterOutput);
             } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
-                String log = String.format("Time: %s Magnetic: %f %f %f",event.timestamp, magnetic[0], magnetic[1], magnetic[2]);
+                String log = String.format("Time: %s Magnetic: %f %f %f%s",event.timestamp, magnetic[0], magnetic[1], magnetic[2], System.getProperty("line.separator"));
                 if (Config.DEBUG) {
                     Log.d(TAG, log);
                 }
@@ -143,7 +143,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                 float[] gyro = new float[3];
                 System.arraycopy(event.values, 0, gyro, 0, event.values.length);
-                String log = String.format("Time: %s Gyro: %f %f %f",event.timestamp, gyro[0], gyro[1], gyro[2]);
+                String log = String.format("Time: %s Gyro: %f %f %f%s",event.timestamp, gyro[0], gyro[1], gyro[2], System.getProperty("line.separator"));
                 if (Config.DEBUG) {
                     Log.d(TAG, log);
                 }
