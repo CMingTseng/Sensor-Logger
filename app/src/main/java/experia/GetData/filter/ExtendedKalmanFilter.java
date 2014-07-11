@@ -186,7 +186,7 @@ public class ExtendedKalmanFilter {
                 estimate_x_k = predict_x_k.add(K_k.multiply(measure_z_k.subtract(predict_x_k)));
                 estimate_p_k = (I.subtract(K_k.multiply(H_k))).multiply(predict_p_k);
 
-                String result = String.format("measure: %s %s %s %s estimated: %s %s %s %s", measure_z_k.get(3, 0), measure_z_k.get(4, 0), measure_z_k.get(5, 0), measure_z_k.get(6, 0), estimate_x_k.get(3, 0), estimate_x_k.get(4, 0), estimate_x_k.get(5, 0), estimate_x_k.get(6, 0));
+                String result = String.format("measure: %s %s %s %s estimated: %s %s %s %s %s", measure_z_k.get(3, 0), measure_z_k.get(4, 0), measure_z_k.get(5, 0), measure_z_k.get(6, 0), estimate_x_k.get(3, 0), estimate_x_k.get(4, 0), estimate_x_k.get(5, 0), estimate_x_k.get(6, 0), System.getProperty("line.separator"));
                 if (Config.DEBUG) {
                     Log.i(TAG, result);
                 }
