@@ -132,7 +132,9 @@ public class QuestActivity extends Activity implements SensorEventListener, View
 //                Quest.getInstance().addAccelerometer(lowPassFilterOutput);
             } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
                 System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
-                String log = String.format("Time: %s Magnetic: %f %f %f%s",event.timestamp, magnetic[0], magnetic[1], magnetic[2], System.getProperty("line.separator"));
+                String log = String.format("Time: %s Magnetic: %f %f %f magnitude^2:%f%s",
+                        event.timestamp, magnetic[0], magnetic[1], magnetic[2],
+                        magnetic[0] * magnetic[0] + magnetic[1] * magnetic[1] + magnetic[2] * magnetic[2], System.getProperty("line.separator"));
                 if (Config.DEBUG) {
                     Log.d(TAG, log);
                 }
