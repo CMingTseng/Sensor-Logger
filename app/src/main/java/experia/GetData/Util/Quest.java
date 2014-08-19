@@ -1,5 +1,6 @@
 package experia.GetData.Util;
 
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ public class Quest {
 
     public static final String TAG = "Quest";
 
+    private float[] gravity = new float[3];
     private float[] accelerometer = new float[3];
     private float[] magnetic = new float[3];
 
@@ -48,30 +50,39 @@ public class Quest {
         taskCompleteListener = listener;
     }
 
+    public void addGravity(float[] gravity) {
+        //Compute Quaternion with latest magnetic field's data
+//        computeQuaternion(acc, this.magnetic);
+        new ComputeQuaternion(gravity, this.accelerometer, this.magnetic).execute();
+        System.arraycopy(gravity, 0, this.gravity, 0, 3);
+    }
+
     public void addAccelerometer(float[] acc) {
         //Compute Quaternion with latest magnetic field's data
 //        computeQuaternion(acc, this.magnetic);
-        new ComputeQuaternion(acc, this.magnetic).execute();
+        new ComputeQuaternion(this.gravity, acc, this.magnetic).execute();
         System.arraycopy(acc, 0, this.accelerometer, 0, 3);
     }
 
     public void addMagnetic(float[] magnetic) {
         //Compute Quaternion wih latest accelerometer's data
-        new ComputeQuaternion(this.accelerometer, magnetic).execute();
+        new ComputeQuaternion(this.gravity, this.accelerometer, magnetic).execute();
         System.arraycopy(magnetic, 0, this.magnetic, 0, 3);
     }
 
-    public void compute(float[] acc, float[] magnetic) {
+    public void compute(float[] gravity, float[] acc, float[] magnetic) {
         //Time 1
-        new ComputeQuaternion(acc, magnetic).execute();
+        new ComputeQuaternion(gravity, acc, magnetic).execute();
         //Time 2
     }
 
     private class ComputeQuaternion extends AsyncTask<Void, Void, Quaternion> {
+        private float[] mGravity;
         private float[] mAcc;
         private float[] mMagnetic;
 
-        public ComputeQuaternion(float[] acc, float[] magnetic) {
+        public ComputeQuaternion(float[] gravity, float[] acc, float[] magnetic) {
+            mGravity = gravity;
             mAcc = acc;
             mMagnetic = magnetic;
         }
@@ -79,7 +90,7 @@ public class Quest {
 
         @Override
         protected Quaternion doInBackground(Void... params) {
-            return computeQuaternion(mAcc, mMagnetic);
+            return computeQuaternion(mGravity, mAcc, mMagnetic);
         }
 
         @Override
@@ -102,14 +113,27 @@ public class Quest {
         }
     }
 
-    private Quaternion computeQuaternion(float[] acc, float[] magnetic) {
+    private Quaternion computeQuaternion(float[] gravity, float[] acc, float[] magnetic) {
         if (Config.DEBUG) {
             String log = String.format("Quaternion from Acc: %f, %f , %f With Magnetic: %f %f %f", acc[0], acc[1], acc[2], magnetic[0], magnetic[1], magnetic[2]);
             Log.d(TAG, log);
         }
 
+        if (gravity[0] == 0 || gravity[1] == 0 || gravity[2] == 0) return null;
         if (acc[0] == 0 || acc[1] == 0 || acc[2] == 0) return null;
         if (magnetic[0] == 0 || magnetic[1] == 0 || magnetic[2] == 0) return null;
+
+        //Compute rotation matrix
+        float[] R = new float[9];
+        float[] I = new float[9];
+        SensorManager.getRotationMatrix(R, I, acc, magnetic);
+        float [] A_D = magnetic;
+        float [] A_W = new float[3];
+        A_W[0] = R[0] * A_D[0] + R[1] * A_D[1] + R[2] * A_D[2];
+        A_W[1] = R[3] * A_D[0] + R[4] * A_D[1] + R[5] * A_D[2];
+        A_W[2] = R[6] * A_D[0] + R[7] * A_D[1] + R[8] * A_D[2];
+
+        Log.d("###", "Magnetic magnitude:" + Math.sqrt(A_W[0]*A_W[0] + A_W[1]*A_W[1] +A_W[2]*A_W[2]));
 
         //Normalizes vector
         Vector accVector1 = new BasicVector(new double[]{acc[0], acc[1], acc[2]});

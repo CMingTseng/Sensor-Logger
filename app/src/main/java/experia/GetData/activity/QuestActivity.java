@@ -47,6 +47,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
     private TextView recordingStatus;
     private ArrayList<float[]> accLists = new ArrayList<float[]>();
     private ArrayList<float[]> magneticLists = new ArrayList<float[]>();
+    private ArrayList<float[]> gravityLists = new ArrayList<float[]>();
     private ArrayList<float[]> gyroLists = new ArrayList<float[]>();
     private ArrayList<Quaternion> quaternions = new ArrayList<Quaternion>();
     private boolean shouldRecordData = false;
@@ -94,6 +95,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
@@ -151,6 +153,10 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 }
                 Common.writeToFile(Common.fileName + "_raw.txt", log);
                 gyroLists.add(gyro);
+            } else if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+                float[] gravity = event.values.clone();
+                gravityLists.add(gravity);
+
             }
         }
     }
@@ -181,7 +187,7 @@ public class QuestActivity extends Activity implements SensorEventListener, View
                 //Clear all elements of quaternions
                 quaternions.clear();
                 for (int i = 0; i < size; i++) {
-                    Quest.getInstance(this).compute(accLists.get(i), magneticLists.get(i));
+                    Quest.getInstance(this).compute(gravityLists.get(i), accLists.get(i), magneticLists.get(i));
                 }
                 break;
             case R.id.log_name_set_btn:
