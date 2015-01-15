@@ -12,5 +12,6 @@
     <string name="status_stop">Status: Stop</string>
     <string name="clear">Clear</string>
     <string name="record">Record</string>
+    <string name="title_activity_simple_fusion">SimpleFusionActivity</string>
 
 </resources>
