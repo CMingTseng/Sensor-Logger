@@ -15,6 +15,10 @@ import experia.GetData.model.SensorData;
  */
 public class SimpleFusion {
 
+    /*
+     * TODO make some static input, check the filtering
+     */
+
     //Algorithm to track vertical motion of a smartphone from simple fusion of accelerometer and gyro measurements.
 
     public static final double T = 0.5f; //Window size = 0.5 second
@@ -46,7 +50,7 @@ public class SimpleFusion {
     private Vector om = new BasicVector(new double[]{0, 0, 0}); //TODO init value ?
 
     // tau : The time constant will be specified according to results of experimental trial and error test
-    private static final long TAU = 10;   //Time in milisecond
+    private static final long TAU = 100;   //Time in milisecond
 
     private double getAlpha(SensorData eventOld, SensorData eventNew) {
         long t = (eventNew.timestamp - eventOld.timestamp)/1000000;  //Convert to milisecond
@@ -60,11 +64,11 @@ public class SimpleFusion {
     }
 
     // get upA at time event
-    private Vector getUPa(SensorData event) {
+    private Vector getUPa(SensorData gyro, SensorData acc) {
         //Calulate window size
-        ArrayList<SensorData> listWindow = getListEvent(event);
+        ArrayList<SensorData> listWindow = getListEvent(acc);
 
-        BasicVector g = computeG(event, listWindow);
+        BasicVector g = computeG(gyro, acc, listWindow);
 
         return g.divide(Math.sqrt(g.get(0)*g.get(0) + g.get(1)*g.get(1) + g.get(2)*g.get(2))).multiply(-1);
     }
@@ -97,7 +101,7 @@ public class SimpleFusion {
         return Math.exp(-(deltaT/T)*(deltaT/T));
     }
 
-    private double computeC(SensorData eventI, SensorData eventJ, ArrayList<SensorData> listWindow) {
+    private double computeC(SensorData eventI, SensorData eventJ, SensorData accComponent, ArrayList<SensorData> listWindow) {
 
         double w = computeW(eventI, eventJ);
 
@@ -109,16 +113,16 @@ public class SimpleFusion {
         return w/wSum;
     }
 
-    private BasicVector computeG(SensorData eventI, ArrayList<SensorData> listWindow) {
+    private BasicVector computeG(SensorData eventI, SensorData eventJ, ArrayList<SensorData> listWindow) {
         double g1 = 0;
         double g2 = 0;
         double g3 = 0;
         for (SensorData event : listWindow) {
-            double c = computeC(eventI, event, listWindow);
+            double c = computeC(eventI, eventJ, event, listWindow);
 
-            g1 += c*eventI.values[0];
-            g2 += c*eventI.values[1];
-            g3 += c*eventI.values[2];
+            g1 += c*eventJ.values[0];
+            g2 += c*eventJ.values[1];
+            g3 += c*eventJ.values[2];
         }
 
         return new BasicVector(new double[]{g1, g2, g3});
@@ -175,9 +179,9 @@ public class SimpleFusion {
         double alpha = 0;
         if (accOld != null) {
             alpha = getAlpha(accOld, accNew);
-            return getUPg(upOld, accOld, accNew, gyroNew).multiply(alpha).add(getUPa(accNew).multiply(1-alpha));
+            return getUPg(upOld, accOld, accNew, gyroNew).multiply(alpha).add(getUPa(gyroNew, accNew).multiply(1-alpha));
         } else {
-            return getUPa(accNew);
+            return getUPa(gyroNew, accNew);
         }
 
     }
