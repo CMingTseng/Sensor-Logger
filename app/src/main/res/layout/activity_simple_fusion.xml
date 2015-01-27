@@ -8,6 +8,12 @@
     tools:context="experia.GetData.activity.SimpleFusionActivity">
 
     <Button
+        android:id="@+id/btn_load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Load data from file"/>
+
+    <Button
         android:id="@+id/btn_record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

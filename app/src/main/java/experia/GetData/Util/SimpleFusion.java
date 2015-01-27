@@ -53,7 +53,7 @@ public class SimpleFusion {
     private static final long TAU = 100;   //Time in milisecond
 
     private double getAlpha(SensorData eventOld, SensorData eventNew) {
-        long t = (eventNew.timestamp - eventOld.timestamp)/1000000;  //Convert to milisecond
+        double t = (eventNew.timestamp - eventOld.timestamp)/1000000;  //Convert to milisecond
         return (double)TAU / (TAU + t);
     }
 

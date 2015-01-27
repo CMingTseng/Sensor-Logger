@@ -17,6 +17,9 @@ import android.widget.TextView;
 import org.la4j.vector.Vector;
 import org.la4j.vector.dense.BasicVector;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import experia.GetData.R;
@@ -30,6 +33,9 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
     private SensorManager sensorManager;
     private ArrayList<SensorData> mListAcc;
     private ArrayList<SensorData> mListGyro;
+    private ArrayList<Double> V;
+    private ArrayList<Double> Z;
+    private Button btnLoad;
     private Button btnRecord;
     private Button btnStop;
     private Button btnSimleFusion;
@@ -41,11 +47,13 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_fusion);
 
+        btnLoad = (Button) findViewById(R.id.btn_load);
         btnRecord = (Button) findViewById(R.id.btn_record);
         btnStop = (Button) findViewById(R.id.btn_stop);
         btnSimleFusion = (Button) findViewById(R.id.btn_simple_fusion);
         txtStatus = (TextView) findViewById(R.id.txt_status);
 
+        btnLoad.setOnClickListener(this);
         btnRecord.setOnClickListener(this);
         btnStop.setOnClickListener(this);
         btnSimleFusion.setOnClickListener(this);
@@ -63,6 +71,12 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
 
         if (mListGyro == null) mListGyro = new ArrayList<SensorData>();
         mListGyro.clear();
+
+        if (V == null) V = new ArrayList<Double>();
+        V.clear();
+
+        if (Z == null) Z = new ArrayList<Double>();
+        Z.clear();
     }
 
     @Override
@@ -105,6 +119,11 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.btn_load:
+                txtStatus.setText("Loading data from file...");
+                init();
+                loadData();
+                break;
             case R.id.btn_record:
                 txtStatus.setText("Recording...");
                 init();
@@ -124,7 +143,25 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
                     } else {
                         upNew = SimpleFusion.getInstance().getUPnew(null, null, mListAcc.get(i), mListGyro.get(i));
                     }
-                    Log.d(TAG, upNew.toString());
+
+                    //Calculate z series
+                    double z;
+                    double v;
+                    if (i == 100) {
+                        z = 0;
+                        v = 0;
+                    } else {
+                        double sZt = mListAcc.get(i).getVector().innerProduct(upNew);
+                        Log.d(TAG, "series sZt: " + sZt);
+                        double time = (mListAcc.get(i).timestamp - mListAcc.get(i-1).timestamp) /1000000000;
+                        v = V.get(V.size()-1) + time*sZt;
+                        Log.d(TAG, "series v: " + v);
+                        z = Z.get(Z.size()-1) + time*v;
+                    }
+                    V.add(v);
+                    Z.add(z);
+                    Log.d(TAG, "upNew:" + upNew.toString());
+                    Log.d(TAG, "series Z: " + z);
                 }
 
                 txtStatus.setText("Done.");
@@ -133,6 +170,47 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
             default:
                 //
         }
+    }
+
+    private void loadData() {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("raw.txt")));
+
+            // do reading, usually loop until end of file reading
+            String mLine = reader.readLine();
+            while (mLine != null) {
+                //process line
+                if (mLine.contains("Acc Raw:")) {
+                    String[] data = mLine.split(" ");
+                    SensorData sensorData = new SensorData();
+                    sensorData.timestamp = Double.valueOf(data[1]);
+                    sensorData.values = new float[]{Float.valueOf(data[4]), Float.valueOf(data[5]), Float.valueOf(data[6])};
+                    mListAcc.add(sensorData);
+                } else if (mLine.contains("Gyro:")) {
+                    String[] data = mLine.split(" ");
+                    SensorData sensorData = new SensorData();
+                    sensorData.timestamp = Double.valueOf(data[1]);
+                    sensorData.values = new float[]{Float.valueOf(data[3]), Float.valueOf(data[4]), Float.valueOf(data[5])};
+                    mListGyro.add(sensorData);
+                }
+                mLine = reader.readLine();
+
+            }
+            txtStatus.setText("Data loaded.");
+        } catch (IOException e) {
+            txtStatus.setText("Error occurred:" + e.getMessage());
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    txtStatus.setText("Error occurred:" + e.getMessage());
+                }
+            }
+        }
+
     }
 
     @Override
