@@ -29,6 +29,15 @@ import experia.GetData.model.SensorData;
 public class SimpleFusionActivity extends Activity implements SensorEventListener, View.OnClickListener {
 
     public static final String TAG = "SimpleFusionActivity";
+    private static final double G_TRUE = 9.80665;
+
+    private static final double G_AVG_X = 10.04719;
+    private static final double G_AVG_Y = 9.895846;
+    private static final double G_AVG_Z = 10.48703;
+
+    public static final double CORG_X = G_TRUE/G_AVG_X;
+    public static final double CORG_Y = G_TRUE/G_AVG_Y;
+    public static final double CORG_Z = G_TRUE/G_AVG_Z;
 
     private SensorManager sensorManager;
     private ArrayList<SensorData> mListAcc;
@@ -138,10 +147,12 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
 
                 Vector upNew = new BasicVector();
                 for (int i = 100; i< mListAcc.size() - 100; i++) {
+                    SensorData sensorData = mListAcc.get(i);
+                    sensorData.getAccCalibrated();
                     if (i > 100) {
-                        upNew = SimpleFusion.getInstance().getUPnew(upNew, mListAcc.get(i-1), mListAcc.get(i), mListGyro.get(i));
+                        upNew = SimpleFusion.getInstance().getUPnew(upNew, mListAcc.get(i-1), sensorData, mListGyro.get(i));
                     } else {
-                        upNew = SimpleFusion.getInstance().getUPnew(null, null, mListAcc.get(i), mListGyro.get(i));
+                        upNew = SimpleFusion.getInstance().getUPnew(null, null, sensorData, mListGyro.get(i));
                     }
 
                     //Calculate z series
@@ -151,9 +162,9 @@ public class SimpleFusionActivity extends Activity implements SensorEventListene
                         z = 0;
                         v = 0;
                     } else {
-                        double sZt = mListAcc.get(i).getVector().innerProduct(upNew);
+                        double sZt = sensorData.getVector().innerProduct(upNew) + G_TRUE;
                         Log.d(TAG, "series sZt: " + sZt);
-                        double time = (mListAcc.get(i).timestamp - mListAcc.get(i-1).timestamp) /1000000000;
+                        double time = (sensorData.timestamp - mListAcc.get(i-1).timestamp) /1000000000;
                         v = V.get(V.size()-1) + time*sZt;
                         Log.d(TAG, "series v: " + v);
                         z = Z.get(Z.size()-1) + time*v;
